@@ -1,33 +1,37 @@
 {
   "name": "daily-memo",
   "version": "1.0.0",
-  "description": "HTML, CSS, JavaScript로 만든 TODO 앱 with Supabase",
+  "description": "Daily memo and TODO app for PURIN",
   "main": "index.html",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "vercel dev",
+    "dev:local": "node server.js",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev",
+    "start:local": "node server.js",
+    "deploy": "vercel --prod"
   },
   "keywords": [
     "todo",
     "memo",
     "calendar",
     "supabase",
-    "javascript",
-    "html",
-    "css"
+    "vercel"
   ],
-  "author": "Daily Memo Team",
+  "author": "Your Name",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2"
   },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/daily-memo.git"
+    "url": "https://github.com/jhbang-nhn/memo-todo-app.git"
   },
-  "bugs": {
-    "url": "https://github.com/your-username/daily-memo/issues"
-  },
-  "homepage": "https://github.com/your-username/daily-memo#readme"
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

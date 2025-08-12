@@ -185,6 +185,16 @@ function init() {
     }
 }
 
+// API 엔드포인트 URL 동적 설정
+function getApiUrl() {
+    // 로컬 개발 환경 (포트 8000)
+    if (window.location.hostname === 'localhost' && window.location.port === '8000') {
+        return 'http://localhost:8000/api/auth/validate';
+    }
+    // Vercel 배포 환경
+    return '/api/auth/validate';
+}
+
 // 로그인 처리
 async function handleLogin(e) {
     e.preventDefault();
@@ -192,8 +202,12 @@ async function handleLogin(e) {
     const password = document.getElementById('password').value;
 
     try {
+        // 동적 API URL 사용
+        const apiUrl = getApiUrl();
+        console.log('🔗 API URL:', apiUrl);
+        
         // 서버 API를 통해 로그인 검증 및 환경변수 가져오기
-        const response = await fetch('/api/auth/validate', {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -237,7 +251,7 @@ async function handleLogin(e) {
         }
     } catch (error) {
         console.error('❌ 로그인 중 오류:', error);
-        alert('❌ 로그인 중 오류가 발생했습니다.');
+        alert('❌ 로그인 중 오류가 발생했습니다. 서버가 실행 중인지 확인해주세요.');
     }
 }
 
