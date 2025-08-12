@@ -167,18 +167,19 @@ document.addEventListener('input', function(e) {
 
 // 초기화
 function init() {
-    // Supabase 클라이언트 초기화
-    supabaseClient = initializeSupabase();
-    if (!supabaseClient) {
-        console.error('Supabase 클라이언트 초기화 실패');
-        return;
-    }
-    
     // 로그인 상태 확인
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = JSON.parse(savedUser);
-        showApp();
+        // 저장된 사용자가 있으면 Supabase 초기화 시도
+        supabaseClient = initializeSupabase();
+        if (supabaseClient) {
+            showApp();
+        } else {
+            // Supabase 초기화 실패 시 로그인 화면으로
+            localStorage.removeItem('currentUser');
+            showLogin();
+        }
     } else {
         showLogin();
     }
@@ -190,12 +191,53 @@ async function handleLogin(e) {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-        currentUser = { id: ADMIN_USER_ID, username: username };
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        showApp();
-    } else {
-        alert('잘못된 사용자명 또는 비밀번호입니다.');
+    try {
+        // 서버 API를 통해 로그인 검증 및 환경변수 가져오기
+        const response = await fetch('/api/auth/validate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 환경변수 설정
+            SUPABASE_URL = data.supabaseUrl;
+            SUPABASE_ANON_KEY = data.supabaseAnonKey;
+            
+            // 환경변수 검증
+            if (!validateEnvironmentVariables()) {
+                alert('❌ 환경변수 설정에 문제가 있습니다.');
+                return;
+            }
+
+            // Supabase 클라이언트 초기화
+            supabaseClient = initializeSupabase();
+            if (!supabaseClient) {
+                alert('❌ Supabase 클라이언트 초기화에 실패했습니다.');
+                return;
+            }
+
+            // 데이터베이스에서 admin 사용자의 UUID 조회
+            const adminUserId = await getAdminUserId();
+            
+            if (!adminUserId) {
+                alert('❌ admin 사용자를 찾을 수 없습니다. 데이터베이스를 확인해주세요.');
+                return;
+            }
+            
+            currentUser = { id: adminUserId, username: username };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showApp();
+        } else {
+            alert(data.message || '잘못된 사용자명 또는 비밀번호입니다.');
+        }
+    } catch (error) {
+        console.error('❌ 로그인 중 오류:', error);
+        alert('❌ 로그인 중 오류가 발생했습니다.');
     }
 }
 

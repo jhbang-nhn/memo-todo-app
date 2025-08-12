@@ -1,97 +1,147 @@
 # for PURIN - TODO 앱
 
-HTML, CSS, JavaScript만 사용하여 만든 간단한 TODO 앱입니다. Supabase를 백엔드로 사용하여 데이터를 저장합니다.
+HTML, CSS, JavaScript로 만든 간단하고 강력한 TODO 앱입니다. 달력 기반의 직관적인 인터페이스와 마크다운 지원 메모 기능을 제공합니다.
 
-## 🌟 주요 기능
+## ✨ 주요 기능
 
-- 📅 **달력 기반 인터페이스**: 왼쪽에 달력, 오른쪽에 TODO와 메모
-- ✅ **TODO 관리**: 추가, 완료 체크, 편집, 삭제
-- 📝 **마크다운 메모**: 마크다운 에디터로 풍부한 메모 작성
-- 🎨 **커스텀 휴일**: 개인 휴일 추가 및 색상 지정
-- 🔐 **간단한 로그인**: 어드민 계정으로 로그인
-- 📱 **반응형 디자인**: 모바일에서도 사용 가능
-- 💾 **Supabase 연동**: 클라우드 데이터베이스에 데이터 저장
-
-## 📋 상세 기능
-
-### 📅 달력 기능
-- 월별 달력 보기 및 네비게이션
+### 📅 달력 기반 관리
+- 월별 달력 뷰로 직관적인 날짜 선택
 - 오늘 날짜 하이라이트
 - 주말 및 공휴일 색상 구분 (토요일: 파란색, 일요일/공휴일: 빨간색)
 - 데이터가 있는 날짜 점 표시
-- 커스텀 휴일 색상 적용
+- 커스텀 휴일 추가 및 색상 지정
 
 ### ✅ TODO 관리
-- 제목과 설명이 있는 TODO 추가
+- 날짜별 TODO 항목 추가/수정/삭제
 - 완료 상태 토글
-- 클릭으로 편집 (모달 창)
-- 삭제 기능
+- 제목과 설명 분리 입력
+- 클릭으로 편집 모달 열기
 
 ### 📝 마크다운 메모
-- **좌우 분할 에디터**: 왼쪽 편집, 오른쪽 실시간 미리보기
-- **마크다운 지원**: 제목, 굵게, 기울임, 코드, 링크, 목록, 인용문
-- **키보드 단축키**: Ctrl+B (굵게), Ctrl+I (기울임), Ctrl+` (코드)
-- **툴바 버튼**: 마크다운 문법 쉽게 적용
-- **실시간 미리보기**: 타이핑할 때마다 즉시 반영
+- 마크다운 문법 지원
+- 실시간 미리보기 (좌우 분할 에디터)
+- 툴바 버튼 및 키보드 단축키
+- 지원 문법: 굵게, 기울임, 코드, 링크, 목록, 제목, 인용
 
 ### 🎨 커스텀 휴일
-- 개인 휴일 추가 (날짜, 이름, 색상)
-- 10가지 색상 선택 가능
+- 개인 기념일 추가
+- 10가지 색상 선택
 - 달력에 색상 반영
 - 선택된 날짜에서 휴일 정보 표시 및 편집
 
-## 프로젝트 구조
+### 🔐 보안 로그인
+- 관리자 전용 로그인
+- 환경변수 기반 보안 설정
+- 서버 사이드 인증
+
+## 🛠 기술 스택
+
+### Frontend
+- **HTML5**: 시맨틱 마크업
+- **CSS3**: Flexbox, Grid, 반응형 디자인
+- **Vanilla JavaScript**: ES6+ 문법, 모듈 패턴
+
+### Backend
+- **Node.js Express**: 환경변수 주입 및 API 서버
+- **Python Flask**: 대안 서버 (선택사항)
+
+### Database
+- **Supabase**: PostgreSQL 기반 백엔드
+- **Real-time**: 실시간 데이터 동기화
+
+### External Libraries
+- **@supabase/supabase-js@2**: Supabase 클라이언트
+- **marked@4.3.0**: 마크다운 파싱
+
+## 📁 프로젝트 구조
 
 ```
 daily-memo/
 ├── index.html          # 메인 HTML 파일
-├── styles.css          # CSS 스타일
-├── config.js           # Supabase 설정
-├── app.js              # 메인 JavaScript 로직
-├── package.json        # Node.js 프로젝트 설정
-└── README.md           # 프로젝트 설명
+├── styles.css          # 스타일시트
+├── app.js              # 메인 애플리케이션 로직
+├── config.js           # 설정 및 환경변수 관리
+├── server.js           # Node.js Express 서버
+├── server.py           # Python Flask 서버 (대안)
+├── package.json        # Node.js 의존성 관리
+├── .env.local          # 환경변수 (Git에서 제외)
+├── .gitignore          # Git 제외 파일 목록
+└── README.md           # 프로젝트 문서
 ```
 
-## 🗄️ 데이터베이스 스키마
+## 🚀 설치 및 실행
 
-### users 테이블
-- `id`: UUID (Primary Key)
-- `username`: VARCHAR(50) (Unique)
-- `password_hash`: VARCHAR(255)
-- `created_at`: TIMESTAMP
+### 0. 환경 변수 설정 (필수)
+보안을 위해 모든 시크릿 값은 환경 변수에서 가져옵니다.
 
-### todos 테이블
-- `id`: UUID (Primary Key)
-- `user_id`: UUID (Foreign Key)
-- `date`: DATE
-- `title`: VARCHAR(255)
-- `description`: TEXT
-- `completed`: BOOLEAN
-- `created_at`: TIMESTAMP
-- `updated_at`: TIMESTAMP
+```bash
+# .env.local 파일 생성 (프로젝트 루트에)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+ADMIN_PASSWORD=your_admin_password
+```
 
-### memos 테이블
-- `id`: UUID (Primary Key)
-- `user_id`: UUID (Foreign Key)
-- `date`: DATE
-- `content`: TEXT (마크다운 지원)
-- `created_at`: TIMESTAMP
-- `updated_at`: TIMESTAMP
+**⚠️ 중요**: `.env.local` 파일이 없으면 애플리케이션이 작동하지 않습니다.
 
-### custom_holidays 테이블
-- `id`: UUID (Primary Key)
-- `user_id`: UUID (Foreign Key)
-- `date`: DATE
-- `name`: VARCHAR(255)
-- `color`: VARCHAR(7) (HEX 색상 코드)
-- `created_at`: TIMESTAMP
-- `updated_at`: TIMESTAMP
+### 방법 1: Node.js Express 서버 사용 (권장)
+
+1. **Node.js 설치 확인**
+   ```bash
+   node --version
+   npm --version
+   ```
+
+2. **의존성 설치**
+   ```bash
+   npm install
+   ```
+
+3. **프로젝트 실행**
+   ```bash
+   # 개발 모드
+   npm start
+   
+   # 또는
+   npm run dev
+   ```
+
+4. **브라우저에서 접속**
+   - `http://localhost:8000` 으로 접속
+   - 로그인 후 사용 시작
+
+### 방법 2: Python Flask 서버 사용
+
+1. **Python 설치 확인**
+   ```bash
+   python3 --version
+   ```
+
+2. **가상환경 생성 및 의존성 설치**
+   ```bash
+   # 가상환경 생성
+   python3 -m venv venv
+   
+   # 가상환경 활성화
+   source venv/bin/activate
+   
+   # 의존성 설치
+   pip install flask python-dotenv
+   ```
+
+3. **프로젝트 실행**
+   ```bash
+   python3 server.py
+   ```
+
+4. **브라우저에서 접속**
+   - `http://localhost:8000` 으로 접속
+   - 로그인 후 사용 시작
 
 ## 🚀 사용법
 
 ### 1. 로그인
-- 사용자명: `admin`
-- 비밀번호: `admin123`
+- 사용자명: `admin` (고정)
+- 비밀번호: `.env.local` 파일의 `ADMIN_PASSWORD` 값
 
 ### 2. 달력 사용
 - 달력에서 날짜를 클릭하여 해당 날짜의 TODO와 메모를 확인
@@ -118,101 +168,88 @@ daily-memo/
 - 달력에 색상 반영
 - 선택된 날짜에서 휴일 정보 표시 및 편집
 
-## 설치 및 실행
+## 🗄 데이터베이스 스키마
 
-### 방법 1: Node.js 사용 (권장)
+### users 테이블
+- `id` (UUID, Primary Key): 사용자 고유 ID
+- `username` (VARCHAR): 사용자명 (고유)
+- `password_hash` (VARCHAR): 비밀번호 해시
+- `created_at` (TIMESTAMP): 생성 시간
 
-1. **Node.js 설치 확인**
-   ```bash
-   node --version
-   npm --version
-   ```
+### todos 테이블
+- `id` (UUID, Primary Key): TODO 고유 ID
+- `user_id` (UUID, Foreign Key): 사용자 ID
+- `date` (DATE): 날짜
+- `title` (VARCHAR): TODO 제목
+- `description` (TEXT): TODO 설명
+- `completed` (BOOLEAN): 완료 상태
+- `created_at` (TIMESTAMP): 생성 시간
+- `updated_at` (TIMESTAMP): 수정 시간
 
-2. **의존성 설치**
-   ```bash
-   npm install
-   ```
+### memos 테이블
+- `id` (UUID, Primary Key): 메모 고유 ID
+- `user_id` (UUID, Foreign Key): 사용자 ID
+- `date` (DATE): 날짜
+- `content` (TEXT): 마크다운 메모 내용
+- `created_at` (TIMESTAMP): 생성 시간
+- `updated_at` (TIMESTAMP): 수정 시간
 
-3. **프로젝트 실행**
-   ```bash
-   # 개발 모드 (캐시 비활성화)
-   npm run dev
-   
-   # 또는 일반 실행
-   npm start
-   
-   # 또는 직접 실행
-   npm run serve
-   ```
+### custom_holidays 테이블
+- `id` (UUID, Primary Key): 휴일 고유 ID
+- `user_id` (UUID, Foreign Key): 사용자 ID
+- `date` (DATE): 날짜
+- `name` (VARCHAR): 휴일 이름
+- `color` (VARCHAR): 색상 코드
+- `created_at` (TIMESTAMP): 생성 시간
 
-4. **브라우저에서 접속**
-   - `http://localhost:8000` 으로 접속
-   - 로그인 후 사용 시작
+## 🔒 보안 기능
 
-### 방법 2: Python 사용
+### 환경변수 기반 보안
+- 모든 시크릿 값은 `.env.local` 파일에서 관리
+- HTML에 환경변수 직접 주입하지 않음
+- 로그인 성공 시에만 필요한 정보를 API로 제공
 
-1. **Python 설치 확인**
-   ```bash
-   python3 --version
-   ```
+### 서버 사이드 인증
+- 클라이언트에서 비밀번호 검증하지 않음
+- 서버 API를 통한 안전한 인증
+- 세션 기반 사용자 관리
 
-2. **프로젝트 실행**
-   ```bash
-   python3 -m http.server 8000
-   ```
+## 🎨 UI/UX 특징
 
-3. **브라우저에서 접속**
-   - `http://localhost:8000` 으로 접속
-   - 로그인 후 사용 시작
+### 반응형 디자인
+- 데스크톱과 모바일 모두 지원
+- Flexbox 기반 레이아웃
+- 직관적인 사용자 인터페이스
 
-### 방법 3: Live Server (VS Code 확장)
+### 접근성
+- 키보드 단축키 지원
+- 시맨틱 HTML 구조
+- 색상 대비 고려
 
-1. **VS Code에서 Live Server 확장 설치**
-2. **index.html 파일 우클릭**
-3. **"Open with Live Server" 선택**
-4. **자동으로 브라우저에서 열림**
-
-### 로그인 정보
-- 사용자명: `admin`
-- 비밀번호: `admin123`
-
-## 🛠️ 기술 스택
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Backend**: Supabase (PostgreSQL)
-- **Authentication**: 간단한 클라이언트 사이드 인증
-- **Database**: Supabase PostgreSQL
-- **Markdown**: marked.js 라이브러리
-
-## ✨ 주요 특징
-
-- **순수 JavaScript**: 프레임워크 없이 구현
-- **반응형 디자인**: 모바일 친화적 UI
-- **실시간 데이터**: Supabase를 통한 실시간 데이터 동기화
-- **마크다운 지원**: 풍부한 텍스트 편집 기능
-- **커스텀 휴일**: 개인화된 달력 관리
-- **사용자 친화적**: 직관적인 인터페이스
-- **확장 가능**: 모듈화된 코드 구조
-
-## 📸 스크린샷
-
-### 메인 화면
-- 달력과 TODO/메모 분할 화면
-- 마크다운 메모 실시간 미리보기
-- 커스텀 휴일 색상 표시
-
-### 마크다운 에디터
-- 좌우 분할 편집 화면
-- 툴바와 키보드 단축키 지원
+### 사용자 경험
 - 실시간 미리보기
+- 드래그 앤 드롭 없이 클릭 기반
+- 모달 기반 편집 인터페이스
+
+## 🚀 배포
+
+### 로컬 개발
+```bash
+npm start
+```
+
+### 프로덕션 배포
+1. 환경변수 설정
+2. Node.js 서버 실행
+3. 리버스 프록시 설정 (Nginx 등)
 
 ## 🤝 기여하기
 
-1. 이 저장소를 포크합니다
-2. 새로운 기능 브랜치를 생성합니다 (`git checkout -b feature/AmazingFeature`)
-3. 변경사항을 커밋합니다 (`git commit -m 'Add some AmazingFeature'`)
-4. 브랜치에 푸시합니다 (`git push origin feature/AmazingFeature`)
-5. Pull Request를 생성합니다
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 📄 라이선스
 
@@ -220,10 +257,15 @@ daily-memo/
 
 ## 👨‍💻 개발자 정보
 
-이 프로젝트는 HTML, CSS, JavaScript만을 사용하여 구현되었으며, Supabase를 백엔드로 활용하여 데이터를 저장합니다.
+- **프로젝트명**: for PURIN - TODO 앱
+- **버전**: 1.0.0
+- **라이선스**: MIT
+- **기술 스택**: HTML5, CSS3, JavaScript, Node.js, Supabase
 
-### 주요 기능 구현
-- **달력 시스템**: 월별 네비게이션, 날짜 선택, 색상 구분
-- **마크다운 에디터**: 좌우 분할 화면, 실시간 미리보기, 키보드 단축키
-- **커스텀 휴일**: 개인 휴일 관리, 색상 선택, 달력 반영
-- **데이터 관리**: Supabase 연동, CRUD 작업, 실시간 동기화
+## 📞 지원
+
+문제가 발생하거나 질문이 있으시면 GitHub Issues를 통해 문의해주세요.
+
+---
+
+**for PURIN** - 간단하고 강력한 TODO 앱 🚀
