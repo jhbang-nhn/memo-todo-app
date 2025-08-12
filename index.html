@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>for PURIN - TODO 앱</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 로그인 화면 -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h2>for PURIN 로그인</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="사용자명" required>
+                <input type="password" id="password" placeholder="비밀번호" required>
+                <button type="submit">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 메인 앱 화면 -->
+    <div id="appScreen" class="app-screen hidden">
+        <header class="header">
+            <h1>for PURIN</h1>
+            <button id="logoutBtn" class="logout-btn">로그아웃</button>
+        </header>
+        
+        <main class="main-container">
+            <!-- 왼쪽: 달력 -->
+            <section class="calendar-section">
+                <div class="calendar-header">
+                    <button id="prevMonth" class="nav-btn">&lt;</button>
+                    <h2 id="currentMonth"></h2>
+                    <button id="nextMonth" class="nav-btn">&gt;</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <div>일</div>
+                        <div>월</div>
+                        <div>화</div>
+                        <div>수</div>
+                        <div>목</div>
+                        <div>금</div>
+                        <div>토</div>
+                    </div>
+                    <div id="calendarDays" class="calendar-days"></div>
+                </div>
+                
+                <!-- 커스텀 휴일 관리 -->
+                <div class="custom-holidays-section">
+                    <div class="section-header">
+                        <h4>커스텀 휴일</h4>
+                        <button id="addHolidayBtn" class="add-btn">+</button>
+                    </div>
+                    <div id="customHolidaysList" class="custom-holidays-list"></div>
+                    <div id="addHolidayForm" class="add-form hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="holidayDate">날짜</label>
+                                <input type="date" id="holidayDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>색상</label>
+                                <div class="color-picker">
+                                    <button type="button" class="color-btn" data-color="#ff6b6b" style="background-color: #ff6b6b;" title="빨강"></button>
+                                    <button type="button" class="color-btn" data-color="#ff8c00" style="background-color: #ff8c00;" title="주황"></button>
+                                    <button type="button" class="color-btn" data-color="#ffd700" style="background-color: #ffd700;" title="노랑"></button>
+                                    <button type="button" class="color-btn" data-color="#32cd32" style="background-color: #32cd32;" title="초록"></button>
+                                    <button type="button" class="color-btn" data-color="#4169e1" style="background-color: #4169e1;" title="파랑"></button>
+                                    <button type="button" class="color-btn" data-color="#8a2be2" style="background-color: #8a2be2;" title="남색"></button>
+                                    <button type="button" class="color-btn" data-color="#ff69b4" style="background-color: #ff69b4;" title="보라"></button>
+                                    <button type="button" class="color-btn" data-color="#8b4513" style="background-color: #8b4513;" title="갈색"></button>
+                                    <button type="button" class="color-btn" data-color="#808080" style="background-color: #808080;" title="회색"></button>
+                                    <button type="button" class="color-btn" data-color="#000000" style="background-color: #000000;" title="검정"></button>
+                                </div>
+                                <input type="hidden" id="holidayColor" value="#ff6b6b">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="holidayName">기념일 이름</label>
+                            <input type="text" id="holidayName" placeholder="기념일 이름" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button id="saveHolidayBtn">저장</button>
+                            <button id="cancelHolidayBtn">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 오른쪽: TODO와 메모 -->
+            <section class="content-section">
+                <div class="selected-date">
+                    <h3 id="selectedDateTitle"></h3>
+                    <div id="selectedDateHoliday" class="selected-date-holiday hidden" onclick="editSelectedDateHoliday()">
+                        <div class="holiday-info">
+                            <span class="holiday-color-dot"></span>
+                            <span class="holiday-name"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TODO 섹션 -->
+                <div class="todo-section">
+                    <div class="section-header">
+                        <h4>TODO</h4>
+                        <button id="addTodoBtn" class="add-btn">+</button>
+                    </div>
+                    <div id="todoList" class="todo-list"></div>
+                    <div id="addTodoForm" class="add-form hidden">
+                        <input type="text" id="todoTitle" placeholder="TODO 제목">
+                        <textarea id="todoDescription" placeholder="설명 (선택사항)"></textarea>
+                        <div class="form-buttons">
+                            <button id="saveTodoBtn">저장</button>
+                            <button id="cancelTodoBtn">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 메모 섹션 -->
+                <div class="memo-section">
+                    <div class="section-header">
+                        <h4>메모</h4>
+                        <button id="addMemoBtn" class="add-btn">+</button>
+                    </div>
+                    <div id="memoList" class="memo-list"></div>
+                    <div id="addMemoForm" class="add-form hidden">
+                        <div class="markdown-editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" data-action="bold" title="굵게 (Ctrl+B)">B</button>
+                                <button type="button" class="toolbar-btn" data-action="italic" title="기울임 (Ctrl+I)">I</button>
+                                <button type="button" class="toolbar-btn" data-action="code" title="코드 (Ctrl+`)">`</button>
+                                <button type="button" class="toolbar-btn" data-action="link" title="링크">🔗</button>
+                                <button type="button" class="toolbar-btn" data-action="list" title="목록">•</button>
+                                <button type="button" class="toolbar-btn" data-action="heading" title="제목">H</button>
+                                <button type="button" class="toolbar-btn" data-action="quote" title="인용">"</button>
+                            </div>
+                            <div class="editor-container">
+                                <div class="editor-pane">
+                                    <div class="pane-header">마크다운 편집</div>
+                                    <textarea id="memoContent" placeholder="메모 내용을 입력하세요...&#10;&#10;마크다운 문법 지원:&#10;• **굵게** 또는 Ctrl+B&#10;• *기울임* 또는 Ctrl+I&#10;• `코드` 또는 Ctrl+`&#10;• [링크](URL)&#10;• - 목록 항목&#10;• # 제목&#10;• > 인용문"></textarea>
+                                </div>
+                                <div class="editor-pane">
+                                    <div class="pane-header">미리보기</div>
+                                    <div id="memoPreview" class="markdown-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-buttons">
+                            <button id="saveMemoBtn">저장</button>
+                            <button id="cancelMemoBtn">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 수정 모달 -->
+    <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">수정</h3>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- TODO 수정 폼 -->
+                <div id="editTodoForm" class="edit-form hidden">
+                    <div class="form-group">
+                        <label for="editTodoTitle">제목</label>
+                        <input type="text" id="editTodoTitle" placeholder="TODO 제목">
+                    </div>
+                    <div class="form-group">
+                        <label for="editTodoDescription">설명</label>
+                        <textarea id="editTodoDescription" placeholder="설명 (선택사항)"></textarea>
+                    </div>
+                </div>
+                
+                <!-- 메모 수정 폼 -->
+                <div id="editMemoForm" class="edit-form hidden">
+                    <div class="form-group">
+                        <label for="editMemoContent">내용</label>
+                        <div class="markdown-editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" data-action="bold" title="굵게 (Ctrl+B)">B</button>
+                                <button type="button" class="toolbar-btn" data-action="italic" title="기울임 (Ctrl+I)">I</button>
+                                <button type="button" class="toolbar-btn" data-action="code" title="코드 (Ctrl+`)">`</button>
+                                <button type="button" class="toolbar-btn" data-action="link" title="링크">🔗</button>
+                                <button type="button" class="toolbar-btn" data-action="list" title="목록">•</button>
+                                <button type="button" class="toolbar-btn" data-action="heading" title="제목">H</button>
+                                <button type="button" class="toolbar-btn" data-action="quote" title="인용">"</button>
+                            </div>
+                            <div class="editor-container">
+                                <div class="editor-pane">
+                                    <div class="pane-header">마크다운 편집</div>
+                                    <textarea id="editMemoContent" placeholder="메모 내용을 입력하세요...&#10;&#10;마크다운 문법 지원:&#10;• **굵게** 또는 Ctrl+B&#10;• *기울임* 또는 Ctrl+I&#10;• `코드` 또는 Ctrl+`&#10;• [링크](URL)&#10;• - 목록 항목&#10;• # 제목&#10;• > 인용문"></textarea>
+                                </div>
+                                <div class="editor-pane">
+                                    <div class="pane-header">미리보기</div>
+                                    <div id="editMemoPreview" class="markdown-preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveEditBtn" class="save-btn">저장</button>
+                <button id="cancelEditBtn" class="cancel-btn">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

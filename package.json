@@ -1,0 +1,33 @@
+{
+  "name": "daily-memo",
+  "version": "1.0.0",
+  "description": "HTML, CSS, JavaScript로 만든 TODO 앱 with Supabase",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -o",
+    "dev": "http-server -p 8000 -c-1",
+    "serve": "http-server -p 8000"
+  },
+  "keywords": [
+    "todo",
+    "memo",
+    "calendar",
+    "supabase",
+    "javascript",
+    "html",
+    "css"
+  ],
+  "author": "Daily Memo Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/daily-memo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/daily-memo/issues"
+  },
+  "homepage": "https://github.com/your-username/daily-memo#readme"
+}
