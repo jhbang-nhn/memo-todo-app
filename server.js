@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 // 메인 페이지 - 기본 HTML 제공
 app.get('/', (req, res) => {
     try {
-        const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+        const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
         res.send(html);
     } catch (error) {
         console.error('Error serving index.html:', error);
@@ -71,8 +71,8 @@ app.post('/api/auth/validate', (req, res) => {
     }
 });
 
-// 정적 파일 제공 (메인 페이지 이후에 설정)
-app.use(express.static('.'));
+// 정적 파일 제공 (public 디렉토리)
+app.use(express.static('public'));
 
 app.listen(PORT, () => {
     console.log(`🚀 Local Server running at http://localhost:${PORT}`);

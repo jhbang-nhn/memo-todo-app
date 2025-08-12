@@ -2,12 +2,12 @@
   "name": "daily-memo",
   "version": "1.0.0",
   "description": "Daily memo and TODO app for PURIN",
-  "main": "index.html",
+  "main": "public/index.html",
   "type": "commonjs",
   "scripts": {
     "dev": "vercel dev",
     "dev:local": "node server.js",
-    "build": "echo 'No build step required'",
+    "build": "echo 'Static files are in public directory'",
     "start": "vercel dev",
     "start:local": "node server.js",
     "deploy": "vercel --prod"
