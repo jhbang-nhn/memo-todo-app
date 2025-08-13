@@ -72,8 +72,15 @@ const cancelHolidayBtn = document.getElementById('cancelHolidayBtn');
 
 // 선택된 날짜 휴일 표시 요소들
 const selectedDateHoliday = document.getElementById('selectedDateHoliday');
-const holidayColorDot = selectedDateHoliday.querySelector('.holiday-color-dot');
-const holidayNameSpan = selectedDateHoliday.querySelector('.holiday-name');
+let holidayColorDot, holidayNameSpan;
+
+// DOM이 로드된 후 요소들 초기화
+function initializeHolidayElements() {
+    if (selectedDateHoliday) {
+        holidayColorDot = selectedDateHoliday.querySelector('.holiday-color-dot');
+        holidayNameSpan = selectedDateHoliday.querySelector('.holiday-name');
+    }
+}
 
 // 편집 중인 아이템 정보
 let editingItem = null;
@@ -83,6 +90,116 @@ let customHolidays = [];
 
 // 현재 메모 데이터
 let currentMemos = [];
+
+// Range 휴일 관련 변수
+let rangeSelection = {
+    startDate: null,
+    endDate: null,
+    isSelecting: false
+};
+
+// 커스텀 날짜 선택기 관련 변수
+let datePickerStates = {};
+
+// 날짜 선택기 표시
+function showDatePicker(inputId) {
+    // 다른 모든 날짜 선택기 숨기기
+    document.querySelectorAll('.date-picker-popup').forEach(popup => {
+        popup.classList.add('hidden');
+    });
+    
+    const popupId = inputId + 'Picker';
+    const popup = document.getElementById(popupId);
+    if (!popup) return;
+    
+    // 현재 날짜로 초기화
+    const currentValue = document.getElementById(inputId).value;
+    const currentDate = currentValue ? new Date(currentValue) : new Date();
+    
+    if (!datePickerStates[inputId]) {
+        datePickerStates[inputId] = {
+            currentMonth: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        };
+    }
+    
+    renderDatePicker(inputId);
+    popup.classList.remove('hidden');
+    
+    // 외부 클릭 시 닫기
+    setTimeout(() => {
+        document.addEventListener('click', function closeDatePicker(e) {
+            if (!popup.contains(e.target) && !e.target.closest('.custom-date-picker')) {
+                popup.classList.add('hidden');
+                document.removeEventListener('click', closeDatePicker);
+            }
+        });
+    }, 100);
+}
+
+// 날짜 선택기 렌더링
+function renderDatePicker(inputId) {
+    const state = datePickerStates[inputId];
+    if (!state) return;
+    
+    const monthEl = document.getElementById(inputId + 'PickerMonth');
+    const daysEl = document.getElementById(inputId + 'PickerDays');
+    
+    if (!monthEl || !daysEl) return;
+    
+    const year = state.currentMonth.getFullYear();
+    const month = state.currentMonth.getMonth();
+    
+    monthEl.textContent = `${year}년 ${month + 1}월`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    
+    // 일요일부터 시작하도록 조정
+    const firstDayOfWeek = firstDay.getDay();
+    startDate.setDate(startDate.getDate() - firstDayOfWeek);
+    
+    let daysHTML = '';
+    
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const isCurrentMonth = date.getMonth() === month;
+        const isToday = isSameDate(date, new Date());
+        const currentValue = document.getElementById(inputId).value;
+        const isSelected = currentValue && isSameDate(date, new Date(currentValue));
+        
+        let className = 'date-picker-day';
+        if (!isCurrentMonth) className += ' other-month';
+        if (isToday) className += ' today';
+        if (isSelected) className += ' selected';
+        
+        daysHTML += `<div class="${className}" data-date="${formatDateForDB(date)}" onclick="selectDate('${inputId}', '${formatDateForDB(date)}')">${date.getDate()}</div>`;
+    }
+    
+    daysEl.innerHTML = daysHTML;
+}
+
+// 날짜 선택
+function selectDate(inputId, dateStr) {
+    document.getElementById(inputId).value = dateStr;
+    document.getElementById(inputId + 'Picker').classList.add('hidden');
+    
+    // Range 기간 계산 업데이트
+    if (inputId === 'holidayStartDate' || inputId === 'holidayEndDate') {
+        updateRangeDuration();
+    }
+}
+
+// 날짜 선택기 월 변경
+function changePickerMonth(inputId, delta) {
+    const state = datePickerStates[inputId];
+    if (!state) return;
+    
+    state.currentMonth.setMonth(state.currentMonth.getMonth() + delta);
+    renderDatePicker(inputId);
+}
 
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', init);
@@ -111,6 +228,35 @@ editModal.addEventListener('click', (e) => {
 addHolidayBtn.addEventListener('click', showAddHolidayForm);
 saveHolidayBtn.addEventListener('click', saveHoliday);
 cancelHolidayBtn.addEventListener('click', hideAddHolidayForm);
+
+// 휴일 타입 변경 이벤트 리스너
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('type-btn')) {
+        e.preventDefault();
+        
+        // 모든 버튼에서 active 클래스 제거
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // 클릭된 버튼에 active 클래스 추가
+        e.target.classList.add('active');
+        
+        // hidden input 값 업데이트
+        const type = e.target.dataset.type;
+        document.querySelector('input[name="holidayType"]').value = type;
+        
+        // 입력 필드 토글
+        toggleHolidayTypeInput(type);
+    }
+});
+
+// Range 날짜 변경 이벤트 리스너
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'holidayStartDate' || e.target.id === 'holidayEndDate') {
+        updateRangeDuration();
+    }
+});
 
 // 색상 선택 버튼 이벤트 리스너
 document.addEventListener('click', (e) => {
@@ -166,18 +312,50 @@ document.addEventListener('input', function(e) {
 });
 
 // 초기화
-function init() {
+async function init() {
+    // DOM 요소 초기화
+    initializeHolidayElements();
+    
     // 로그인 상태 확인
     const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        // 저장된 사용자가 있으면 Supabase 초기화 시도
-        supabaseClient = initializeSupabase();
-        if (supabaseClient) {
+    const savedCredentials = localStorage.getItem('userCredentials');
+    
+    if (savedUser && savedCredentials) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            const credentials = JSON.parse(savedCredentials);
+            
+            // 저장된 자격증명으로 Supabase 초기화
+            SUPABASE_URL = credentials.supabaseUrl;
+            SUPABASE_ANON_KEY = credentials.supabaseAnonKey;
+            
+            // 환경변수 검증
+            if (!validateEnvironmentVariables()) {
+                throw new Error('환경변수 검증 실패');
+            }
+            
+            // Supabase 클라이언트 초기화
+            supabaseClient = initializeSupabase();
+            if (!supabaseClient) {
+                throw new Error('Supabase 클라이언트 초기화 실패');
+            }
+            
+            // 사용자 ID 재확인
+            const adminUserId = await getAdminUserId();
+            if (!adminUserId) {
+                throw new Error('사용자 ID 확인 실패');
+            }
+            
+            // 사용자 ID 업데이트
+            currentUser.id = adminUserId;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
             showApp();
-        } else {
-            // Supabase 초기화 실패 시 로그인 화면으로
+        } catch (error) {
+            console.error('❌ 자동 로그인 실패:', error);
+            // 저장된 정보 삭제
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('userCredentials');
             showLogin();
         }
     } else {
@@ -245,6 +423,14 @@ async function handleLogin(e) {
             
             currentUser = { id: adminUserId, username: username };
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // 자격증명 저장 (새로고침 후 자동 로그인용)
+            const credentials = {
+                supabaseUrl: SUPABASE_URL,
+                supabaseAnonKey: SUPABASE_ANON_KEY
+            };
+            localStorage.setItem('userCredentials', JSON.stringify(credentials));
+            
             showApp();
         } else {
             alert(data.message || '잘못된 사용자명 또는 비밀번호입니다.');
@@ -259,6 +445,7 @@ async function handleLogin(e) {
 function handleLogout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('userCredentials');
     showLogin();
 }
 
@@ -269,11 +456,27 @@ function showLogin() {
 }
 
 async function showApp() {
+    console.log('🚀 showApp 함수 시작');
+    
     loginScreen.classList.add('hidden');
     appScreen.classList.remove('hidden');
-    await loadCustomHolidays();
-    await renderCalendar();
-    loadDataForDate(selectedDate);
+    
+    // DOM 요소 재초기화 (화면 전환 후)
+    initializeHolidayElements();
+    console.log('✅ DOM 요소 초기화 완료');
+    
+    try {
+        await loadCustomHolidays();
+        console.log('✅ 커스텀 휴일 로드 완료');
+        
+        await renderCalendar();
+        console.log('✅ 달력 렌더링 완료');
+        
+        await loadDataForDate(selectedDate);
+        console.log('✅ 선택된 날짜 데이터 로드 완료');
+    } catch (error) {
+        console.error('❌ showApp 중 오류:', error);
+    }
 }
 
 // 달력 렌더링
@@ -286,7 +489,10 @@ async function renderCalendar() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    // 일요일부터 시작하도록 조정 (일요일=0, 월요일=1, ..., 토요일=6)
+    const firstDayOfWeek = firstDay.getDay(); // 일요일=0, 월요일=1, ..., 토요일=6
+    startDate.setDate(startDate.getDate() - firstDayOfWeek);
     
     let calendarHTML = '';
     
@@ -297,8 +503,8 @@ async function renderCalendar() {
         const isCurrentMonth = date.getMonth() === month;
         const isToday = isSameDate(date, new Date());
         const isSelected = isSameDate(date, selectedDate);
-        const isSunday = date.getDay() === 0;
-        const isSaturday = date.getDay() === 6;
+        const isSunday = date.getDay() === 0; // 일요일
+        const isSaturday = date.getDay() === 6; // 토요일
         const isHolidayDate = isHoliday(date);
         const isCustomHolidayDate = isCustomHoliday(date);
         const customHolidayInfo = getCustomHolidayInfo(date);
@@ -318,9 +524,9 @@ async function renderCalendar() {
             holidayTooltip = ` title="${getHolidayName(date)}"`;
         }
         
-        // 커스텀 휴일인 경우 인라인 스타일로 색상 적용
+        // 커스텀 휴일인 경우 인라인 스타일로 색상 적용 (단, Range 휴일은 제외)
         let styleAttr = '';
-        if (customHolidayInfo) {
+        if (customHolidayInfo && !customHolidayInfo.is_range) {
             // 다른 달의 커스텀 휴일은 투명도 적용
             const opacity = !isCurrentMonth ? '0.6' : '1';
             styleAttr = ` style="color: ${customHolidayInfo.color} !important; opacity: ${opacity};"`;
@@ -336,6 +542,9 @@ async function renderCalendar() {
     
     // 데이터가 있는 날짜 표시
     await markDatesWithData();
+    
+    // Range 휴일 그라데이션 적용
+    await applyRangeHolidayGradients();
 }
 
 // 날짜 클릭 처리
@@ -408,10 +617,23 @@ function isCustomHoliday(date) {
     return customHolidays.find(holiday => holiday.date === dateStr) || false;
 }
 
-// 커스텀 휴일 정보 가져오기
+// 커스텀 휴일 정보 가져오기 (Range 휴일 지원)
 function getCustomHolidayInfo(date) {
     const dateStr = formatDateForDB(date);
-    return customHolidays.find(holiday => holiday.date === dateStr) || null;
+    
+    // Range 휴일 우선 검색
+    const rangeHoliday = customHolidays.find(holiday => {
+        if (!holiday.is_range || !holiday.end_date) return false;
+        const startDate = new Date(holiday.start_date);
+        const endDate = new Date(holiday.end_date);
+        const targetDate = new Date(dateStr);
+        return targetDate >= startDate && targetDate <= endDate;
+    });
+    
+    if (rangeHoliday) return rangeHoliday;
+    
+    // 단일 휴일 검색
+    return customHolidays.find(holiday => holiday.start_date === dateStr) || null;
 }
 
 // 데이터가 있는 날짜 표시
@@ -961,12 +1183,15 @@ async function loadCustomHolidays() {
             .from('custom_holidays')
             .select('*')
             .eq('user_id', currentUser.id)
-            .order('date', { ascending: true });
+            .order('start_date', { ascending: true });
         
         if (error) throw error;
         
         customHolidays = holidays || [];
         renderCustomHolidaysList();
+        
+        // Range 휴일 그라데이션 적용
+        await applyRangeHolidayGradients();
     } catch (error) {
         console.error('커스텀 휴일 로드 중 오류:', error);
         customHolidays = [];
@@ -981,18 +1206,29 @@ function renderCustomHolidaysList() {
     }
     
     customHolidaysList.innerHTML = customHolidays.map(holiday => {
-        const date = new Date(holiday.date);
-        const formattedDate = `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        let dateDisplay;
+        
+        if (holiday.is_range && holiday.end_date) {
+            const startDate = new Date(holiday.start_date);
+            const endDate = new Date(holiday.end_date);
+            const startFormatted = `${startDate.getFullYear()}년 ${startDate.getMonth() + 1}월 ${startDate.getDate()}일`;
+            const endFormatted = `${endDate.getFullYear()}년 ${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
+            const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            dateDisplay = `${startFormatted} ~ ${endFormatted} (${duration}일간)`;
+        } else {
+            const date = new Date(holiday.start_date);
+            dateDisplay = `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        }
         
         return `
-            <div class="custom-holiday-item" style="border-left-color: ${holiday.color}">
+            <div class="custom-holiday-item" style="border-left-color: ${holiday.color}" onclick="editCustomHoliday('${holiday.id}')">
                 <div class="custom-holiday-color" style="background-color: ${holiday.color}"></div>
                 <div class="custom-holiday-info">
-                    <div class="custom-holiday-date">${formattedDate}</div>
+                    <div class="custom-holiday-date">${dateDisplay}</div>
                     <div class="custom-holiday-name">${escapeHtml(holiday.name)}</div>
                 </div>
                 <div class="custom-holiday-actions">
-                    <button onclick="deleteCustomHoliday('${holiday.id}')" title="삭제">🗑️</button>
+                    <button onclick="event.stopPropagation(); deleteCustomHoliday('${holiday.id}')" title="삭제">🗑️</button>
                 </div>
             </div>
         `;
@@ -1002,16 +1238,39 @@ function renderCustomHolidaysList() {
 // 커스텀 휴일 추가 폼 표시/숨김
 function showAddHolidayForm() {
     addHolidayForm.classList.remove('hidden');
-    holidayDate.focus();
+    
+    // 기본값 설정
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('holidayDate').value = today;
+    document.getElementById('holidayStartDate').value = today;
+    document.getElementById('holidayEndDate').value = today;
+    
+    // 휴일 타입 초기화
+    document.querySelector('input[name="holidayType"]').value = 'single';
+    document.querySelector('.type-btn[data-type="single"]').classList.add('active');
+    document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
+    toggleHolidayTypeInput('single');
+    
     resetColorSelection();
+    holidayDate.focus();
 }
 
 function hideAddHolidayForm() {
     addHolidayForm.classList.add('hidden');
-    holidayDate.value = '';
+    
+    // 입력 필드 초기화
+    document.getElementById('holidayDate').value = '';
+    document.getElementById('holidayStartDate').value = '';
+    document.getElementById('holidayEndDate').value = '';
     holidayName.value = '';
     holidayColor.value = '#ff6b6b';
     resetColorSelection();
+    
+    // 휴일 타입 초기화
+    document.querySelector('input[name="holidayType"]').value = 'single';
+    document.querySelector('.type-btn[data-type="single"]').classList.add('active');
+    document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
+    toggleHolidayTypeInput('single');
     
     // 수정 모드 초기화
     saveHolidayBtn.textContent = '저장';
@@ -1048,15 +1307,42 @@ function resetColorSelection() {
 
 // 커스텀 휴일 저장/수정
 async function saveHoliday() {
-    const date = holidayDate.value;
+    const holidayType = document.querySelector('input[name="holidayType"]').value;
     const name = holidayName.value.trim();
     const color = holidayColor.value;
     const isEditMode = saveHolidayBtn.dataset.editMode === 'true';
     const editId = saveHolidayBtn.dataset.editId;
     
-    if (!date || !name) {
-        alert('날짜와 기념일 이름을 입력해주세요.');
+    if (!name) {
+        alert('기념일 이름을 입력해주세요.');
         return;
+    }
+    
+    let startDate, endDate, isRange;
+    
+    if (holidayType === 'range') {
+        startDate = document.getElementById('holidayStartDate').value;
+        endDate = document.getElementById('holidayEndDate').value;
+        isRange = true;
+        
+        if (!startDate || !endDate) {
+            alert('시작일과 종료일을 입력해주세요.');
+            return;
+        }
+        
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('종료일은 시작일보다 늦어야 합니다.');
+            return;
+        }
+    } else {
+        startDate = document.getElementById('holidayDate').value;
+        endDate = null;
+        isRange = false;
+        
+        if (!startDate) {
+            alert('날짜를 입력해주세요.');
+            return;
+        }
     }
     
     try {
@@ -1067,9 +1353,11 @@ async function saveHoliday() {
             const { error: updateError } = await supabaseClient
                 .from('custom_holidays')
                 .update({
-                    date: date,
+                    start_date: startDate,
+                    end_date: endDate,
                     name: name,
-                    color: color
+                    color: color,
+                    is_range: isRange
                 })
                 .eq('id', editId);
             error = updateError;
@@ -1079,9 +1367,11 @@ async function saveHoliday() {
                 .from('custom_holidays')
                 .insert({
                     user_id: currentUser.id,
-                    date: date,
+                    start_date: startDate,
+                    end_date: endDate,
                     name: name,
-                    color: color
+                    color: color,
+                    is_range: isRange
                 });
             error = insertError;
         }
@@ -1123,7 +1413,7 @@ async function deleteCustomHoliday(holidayId) {
 function showSelectedDateHoliday(date) {
     const customHolidayInfo = getCustomHolidayInfo(date);
     
-    if (customHolidayInfo) {
+    if (customHolidayInfo && selectedDateHoliday && holidayColorDot && holidayNameSpan) {
         // 휴일 정보 표시
         holidayColorDot.style.backgroundColor = customHolidayInfo.color;
         holidayNameSpan.textContent = customHolidayInfo.name;
@@ -1132,7 +1422,7 @@ function showSelectedDateHoliday(date) {
         
         // 휴일 ID를 요소에 저장
         selectedDateHoliday.dataset.holidayId = customHolidayInfo.id;
-    } else {
+    } else if (selectedDateHoliday) {
         // 휴일이 없으면 숨김
         selectedDateHoliday.classList.add('hidden');
     }
@@ -1140,6 +1430,8 @@ function showSelectedDateHoliday(date) {
 
 // 선택된 날짜의 휴일 수정
 function editSelectedDateHoliday() {
+    if (!selectedDateHoliday) return;
+    
     const holidayId = selectedDateHoliday.dataset.holidayId;
     if (!holidayId) return;
     
@@ -1147,7 +1439,6 @@ function editSelectedDateHoliday() {
     if (!holiday) return;
     
     // 수정 폼에 현재 값 설정
-    holidayDate.value = holiday.date;
     holidayName.value = holiday.name;
     holidayColor.value = holiday.color;
     
@@ -1158,12 +1449,268 @@ function editSelectedDateHoliday() {
         colorBtn.classList.add('selected');
     }
     
+    // 휴일 타입에 따라 입력 필드 설정
+    if (holiday.is_range && holiday.end_date) {
+        // Range 휴일
+        document.querySelector('input[name="holidayType"]').value = 'range';
+        document.querySelector('.type-btn[data-type="range"]').classList.add('active');
+        document.querySelector('.type-btn[data-type="single"]').classList.remove('active');
+        toggleHolidayTypeInput('range');
+        document.getElementById('holidayStartDate').value = holiday.start_date;
+        document.getElementById('holidayEndDate').value = holiday.end_date;
+        updateRangeDuration();
+    } else {
+        // 단일 휴일
+        document.querySelector('input[name="holidayType"]').value = 'single';
+        document.querySelector('.type-btn[data-type="single"]').classList.add('active');
+        document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
+        toggleHolidayTypeInput('single');
+        document.getElementById('holidayDate').value = holiday.start_date;
+    }
+    
     // 폼 표시
-    addHolidayForm.classList.remove('hidden');
-    holidayDate.focus();
+    showAddHolidayForm();
     
     // 저장 버튼을 수정 모드로 변경
     saveHolidayBtn.textContent = '수정';
     saveHolidayBtn.dataset.editMode = 'true';
     saveHolidayBtn.dataset.editId = holidayId;
+}
+
+// 커스텀 휴일 편집
+async function editCustomHoliday(holidayId) {
+    const holiday = customHolidays.find(h => h.id === holidayId);
+    if (!holiday) return;
+    
+    // 편집 모드 설정
+    saveHolidayBtn.textContent = '수정';
+    saveHolidayBtn.dataset.editMode = 'true';
+    saveHolidayBtn.dataset.editId = holidayId;
+    
+    // 폼에 기존 데이터 설정
+    holidayName.value = holiday.name;
+    holidayColor.value = holiday.color;
+    
+    // 색상 버튼 선택 상태 업데이트
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.color === holiday.color) {
+            btn.classList.add('selected');
+        }
+    });
+    
+    // 휴일 타입에 따라 입력 필드 설정
+    if (holiday.is_range && holiday.end_date) {
+        // Range 휴일
+        document.querySelector('input[name="holidayType"]').value = 'range';
+        document.querySelector('.type-btn[data-type="range"]').classList.add('active');
+        document.querySelector('.type-btn[data-type="single"]').classList.remove('active');
+        toggleHolidayTypeInput('range');
+        document.getElementById('holidayStartDate').value = holiday.start_date;
+        document.getElementById('holidayEndDate').value = holiday.end_date;
+        updateRangeDuration();
+    } else {
+        // 단일 휴일
+        document.querySelector('input[name="holidayType"]').value = 'single';
+        document.querySelector('.type-btn[data-type="single"]').classList.add('active');
+        document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
+        toggleHolidayTypeInput('single');
+        document.getElementById('holidayDate').value = holiday.start_date;
+    }
+    
+    // 폼 표시
+    showAddHolidayForm();
+}
+
+// Range 휴일 그라데이션 적용
+async function applyRangeHolidayGradients() {
+    try {
+        const rangeHolidays = await getRangeHolidays();
+        
+        if (!Array.isArray(rangeHolidays)) {
+            console.warn('⚠️ Range 휴일 데이터가 배열이 아닙니다:', rangeHolidays);
+            return;
+        }
+        
+        rangeHolidays.forEach(holiday => {
+            const dateRange = getDateRange(holiday.start_date, holiday.end_date);
+            
+            dateRange.forEach((date, index) => {
+                const dayElement = getCalendarDayElement(date);
+                if (!dayElement) return;
+                
+                // CSS 변수 설정
+                dayElement.style.setProperty('--holiday-color', holiday.color);
+                
+                // Range 위치에 따른 클래스 적용
+                if (dateRange.length === 1) {
+                    dayElement.classList.add('range-single');
+                } else if (index === 0) {
+                    dayElement.classList.add('range-start');
+                } else if (index === dateRange.length - 1) {
+                    dayElement.classList.add('range-end');
+                } else {
+                    dayElement.classList.add('range-middle');
+                }
+                
+                dayElement.classList.add('range-holiday');
+                
+                // 툴팁에 Range 정보 추가
+                dayElement.title = `${holiday.name} (${holiday.start_date} ~ ${holiday.end_date})`;
+            });
+        });
+    } catch (error) {
+        console.error('❌ Range 휴일 그라데이션 적용 중 오류:', error);
+    }
+}
+
+// 날짜 범위 생성
+function getDateRange(startDate, endDate) {
+    const dates = [];
+    const current = new Date(startDate);
+    const end = new Date(endDate);
+    
+    while (current <= end) {
+        dates.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+    }
+    
+    return dates;
+}
+
+// Range 휴일 조회
+async function getRangeHolidays() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('custom_holidays')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .eq('is_range', true);
+        
+        if (error) {
+            console.error('❌ Range 휴일 조회 실패:', error);
+            return [];
+        }
+        
+        return data || [];
+    } catch (error) {
+        console.error('❌ Range 휴일 조회 중 오류:', error);
+        return [];
+    }
+}
+
+// 달력 날짜 요소 가져오기
+function getCalendarDayElement(date) {
+    const dateStr = formatDateForDB(date);
+    return document.querySelector(`[data-date="${dateStr}"]`);
+}
+
+// 휴일 표시 정보 가져오기 (우선순위 적용)
+function getHolidayDisplayInfo(date) {
+    const holidays = getHolidaysForDate(date);
+    
+    // Range 휴일 우선
+    const rangeHoliday = holidays.find(h => h.is_range);
+    if (rangeHoliday) {
+        return {
+            type: 'range',
+            holiday: rangeHoliday,
+            position: getRangePosition(date, rangeHoliday)
+        };
+    }
+    
+    // 단일 휴일
+    const singleHoliday = holidays.find(h => !h.is_range);
+    if (singleHoliday) {
+        return {
+            type: 'single',
+            holiday: singleHoliday
+        };
+    }
+    
+    return null;
+}
+
+// Range 위치 확인
+function getRangePosition(date, holiday) {
+    const dateRange = getDateRange(holiday.start_date, holiday.end_date);
+    const dateIndex = dateRange.findIndex(d => formatDateForDB(d) === formatDateForDB(date));
+    
+    if (dateIndex === 0) return 'start';
+    if (dateIndex === dateRange.length - 1) return 'end';
+    return 'middle';
+}
+
+// 휴일 타입 입력 토글
+function toggleHolidayTypeInput(type) {
+    const singleInput = document.getElementById('singleDateInput');
+    const rangeInput = document.getElementById('rangeDateInput');
+    
+    if (type === 'range') {
+        singleInput.style.display = 'none';
+        rangeInput.style.display = 'block';
+        
+        // Range 입력 필드 초기화
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('holidayStartDate').value = today;
+        document.getElementById('holidayEndDate').value = today;
+        updateRangeDuration();
+    } else {
+        singleInput.style.display = 'block';
+        rangeInput.style.display = 'none';
+        
+        // 단일 날짜 입력 필드 초기화
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('holidayDate').value = today;
+    }
+}
+
+// Range 기간 계산 및 표시
+function updateRangeDuration() {
+    const startDate = document.getElementById('holidayStartDate').value;
+    const endDate = document.getElementById('holidayEndDate').value;
+    const durationElement = document.getElementById('rangeDuration');
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        
+        if (duration > 0) {
+            durationElement.textContent = `기간: ${duration}일`;
+            durationElement.style.color = '#333';
+        } else {
+            durationElement.textContent = '기간: 잘못된 날짜';
+            durationElement.style.color = '#e74c3c';
+        }
+    } else {
+        durationElement.textContent = '기간: 날짜를 선택하세요';
+        durationElement.style.color = '#666';
+    }
+}
+
+// 특정 날짜의 모든 휴일 가져오기
+function getHolidaysForDate(date) {
+    const dateStr = formatDateForDB(date);
+    const holidays = [];
+    
+    customHolidays.forEach(holiday => {
+        if (holiday.is_range && holiday.end_date) {
+            // Range 휴일 검사
+            const startDate = new Date(holiday.start_date);
+            const endDate = new Date(holiday.end_date);
+            const targetDate = new Date(dateStr);
+            
+            if (targetDate >= startDate && targetDate <= endDate) {
+                holidays.push(holiday);
+            }
+        } else {
+            // 단일 휴일 검사
+            if (holiday.start_date === dateStr) {
+                holidays.push(holiday);
+            }
+        }
+    });
+    
+    return holidays;
 }

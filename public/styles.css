@@ -262,6 +262,34 @@ body {
     color: white !important;
 }
 
+/* Range 휴일이 선택되었을 때 색상 조정 */
+.calendar-day.selected.range-holiday {
+    background: #667eea !important;
+    color: white !important;
+}
+
+.calendar-day.selected.range-holiday::before {
+    opacity: 0.2 !important;
+}
+
+/* Range 휴일이 오늘일 때 색상 조정 */
+.calendar-day.today.range-holiday {
+    background: #ff6b6b !important;
+    color: white !important;
+}
+
+.calendar-day.today.range-holiday::before {
+    opacity: 0.2 !important;
+}
+
+/* 선택된 날짜나 오늘 날짜가 Range 휴일과 겹칠 때는 흰색 텍스트로 오버라이드 */
+.calendar-day.selected.range-holiday.saturday,
+.calendar-day.selected.range-holiday.sunday-holiday,
+.calendar-day.today.range-holiday.saturday,
+.calendar-day.today.range-holiday.sunday-holiday {
+    color: white !important;
+}
+
 /* 커스텀 휴일 색상 우선 적용 */
 .calendar-day[style*="color:"] {
     font-weight: 600;
@@ -309,6 +337,7 @@ body {
     border-radius: 6px;
     border-left: 4px solid;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .custom-holiday-item:hover {
@@ -1278,4 +1307,381 @@ body {
         width: 95%;
         margin: 1rem;
     }
+}
+
+/* Range 휴일 그라데이션 스타일 */
+.calendar-day.range-holiday {
+    position: relative;
+    transition: all 0.2s ease;
+    z-index: 1;
+    font-weight: 600 !important;
+}
+
+/* Range 휴일에서 요일별 색상 유지 */
+.calendar-day.range-holiday.saturday {
+    color: #667eea !important;
+}
+
+.calendar-day.range-holiday.sunday-holiday {
+    color: #ff6b6b !important;
+}
+
+/* 다른 달의 Range 휴일 색상 (투명도 적용) */
+.calendar-day.range-holiday.other-month.saturday {
+    color: #a8b4e6 !important;
+}
+
+.calendar-day.range-holiday.other-month.sunday-holiday {
+    color: #ffb3b3 !important;
+}
+
+/* Range 휴일 배경 효과를 위한 ::before pseudo-element */
+.calendar-day.range-holiday::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: var(--holiday-color);
+    opacity: 0.3;
+    z-index: -1;
+    transition: all 0.2s ease;
+}
+
+/* Range 시작일 (왼쪽 타원형) */
+.calendar-day.range-start::before {
+    border-radius: 50% 20% 20% 50%;
+    background: linear-gradient(90deg, 
+        var(--holiday-color) 0%, 
+        var(--holiday-color) 85%, 
+        rgba(255, 255, 255, 0.1) 100%);
+    opacity: 0.4;
+}
+
+/* Range 중간일 (사각형) */
+.calendar-day.range-middle::before {
+    border-radius: 0;
+    opacity: 0.35;
+}
+
+/* Range 종료일 (오른쪽 타원형) */
+.calendar-day.range-end::before {
+    border-radius: 20% 50% 50% 20%;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        var(--holiday-color) 15%, 
+        var(--holiday-color) 100%);
+    opacity: 0.4;
+}
+
+/* 단일 Range 휴일 (완전한 타원) */
+.calendar-day.range-single::before {
+    border-radius: 50%;
+    opacity: 0.45;
+}
+
+/* Range 휴일 호버 효과 */
+.calendar-day.range-holiday:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-day.range-holiday:hover::before {
+    opacity: 0.6 !important;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Range 휴일 호버 시 연결된 날짜들도 하이라이트 */
+.calendar-day.range-holiday:hover ~ .calendar-day.range-holiday::before {
+    opacity: 0.5 !important;
+}
+
+/* Range 휴일 애니메이션 */
+.calendar-day.range-holiday {
+    animation: rangeHolidayAppear 0.4s ease-out;
+}
+
+@keyframes rangeHolidayAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Range 휴일 순차 애니메이션 */
+.calendar-day.range-start {
+    animation-delay: 0.1s;
+}
+
+.calendar-day.range-middle {
+    animation-delay: 0.2s;
+}
+
+.calendar-day.range-end {
+    animation-delay: 0.3s;
+}
+
+/* 모바일에서 그라데이션 조정 */
+@media (max-width: 768px) {
+    .calendar-day.range-start::before {
+        background: linear-gradient(90deg, 
+            var(--holiday-color) 0%, 
+            var(--holiday-color) 90%, 
+            rgba(255, 255, 255, 0.1) 100%);
+        border-radius: 50% 15% 15% 50%;
+    }
+    
+    .calendar-day.range-end::before {
+        background: linear-gradient(90deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            var(--holiday-color) 10%, 
+            var(--holiday-color) 100%);
+        border-radius: 15% 50% 50% 15%;
+    }
+}
+
+/* Range 휴일 입력 폼 스타일 */
+.date-input {
+    margin-bottom: 1rem;
+}
+
+.range-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.range-info {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* 라디오 버튼 스타일 */
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="radio"] {
+    margin: 0;
+}
+
+/* 휴일 타입 선택 버튼 */
+.holiday-type-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #666;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.type-btn:hover {
+    border-color: #4ecdc4;
+    color: #4ecdc4;
+}
+
+.type-btn.active {
+    border-color: #4ecdc4;
+    background: #4ecdc4;
+    color: white;
+}
+
+/* HTML5 Date 입력 필드는 브라우저의 로케일 설정에 따라 달력 표시가 결정됩니다.
+   사용자가 브라우저 설정에서 일요일을 첫 번째 요일로 설정해야 합니다 */
+
+/* 커스텀 날짜 선택기 */
+.custom-date-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-picker-btn {
+    padding: 0.5rem;
+    background: #4ecdc4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.date-picker-btn:hover {
+    background: #45b7d1;
+}
+
+.date-picker-popup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 280px;
+    margin-top: 0.25rem;
+}
+
+/* Range 선택 시 날짜 선택기 위치 조정 */
+#rangeDateInput .date-picker-popup {
+    top: 100%;
+    left: 0;
+    margin-top: 0.25rem;
+}
+
+/* 단일 날짜 선택 시 위치 조정 */
+#singleDateInput .date-picker-popup {
+    top: 100%;
+    left: 0;
+    margin-top: 0.25rem;
+}
+
+.custom-date-picker {
+    position: relative;
+}
+
+.date-picker-popup.hidden {
+    display: none;
+}
+
+.date-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.date-nav-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: #666;
+}
+
+.date-nav-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.date-picker-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #eee;
+    padding: 0.5rem 0;
+}
+
+.date-picker-weekdays > div {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: #666;
+    padding: 0.25rem;
+}
+
+.date-picker-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #eee;
+    padding: 0.5rem;
+    border-radius: 0 0 8px 8px;
+}
+
+.date-picker-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.date-picker-day:hover {
+    background: #e3f2fd;
+}
+
+.date-picker-day.selected {
+    background: #4ecdc4;
+    color: white;
+}
+
+.date-picker-day.other-month {
+    color: #ccc;
+}
+
+.date-picker-day.today {
+    background: #fff3cd;
+    color: #856404;
+    font-weight: bold;
+}
+
+/* 날짜 입력 필드 스타일 */
+.custom-date-picker input {
+    flex: 1;
+    padding: 0.5rem 2rem 0.5rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.custom-date-picker input:hover {
+    border-color: #4ecdc4;
+    background: #f8f9fa;
+}
+
+.custom-date-picker input:focus {
+    outline: none;
+    border-color: #4ecdc4;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    background: white;
+}
+
+/* 날짜 입력 필드에 달력 아이콘 표시 */
+.custom-date-picker {
+    position: relative;
+}
+
+.custom-date-picker::after {
+    content: '📅';
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 1;
 }

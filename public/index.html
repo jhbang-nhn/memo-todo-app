@@ -55,32 +55,101 @@
                     </div>
                     <div id="customHolidaysList" class="custom-holidays-list"></div>
                     <div id="addHolidayForm" class="add-form hidden">
-                        <div class="form-row">
+                        <div class="form-group">
+                            <label>휴일 타입</label>
+                            <div class="holiday-type-buttons">
+                                <button type="button" class="type-btn active" data-type="single">단일 날짜</button>
+                                <button type="button" class="type-btn" data-type="range">범위 선택</button>
+                            </div>
+                            <input type="hidden" name="holidayType" value="single">
+                        </div>
+                        
+                        <!-- 단일 날짜 입력 -->
+                        <div id="singleDateInput" class="date-input">
                             <div class="form-group">
                                 <label for="holidayDate">날짜</label>
-                                <input type="date" id="holidayDate" required>
-                            </div>
-                            <div class="form-group">
-                                <label>색상</label>
-                                <div class="color-picker">
-                                    <button type="button" class="color-btn" data-color="#ff6b6b" style="background-color: #ff6b6b;" title="빨강"></button>
-                                    <button type="button" class="color-btn" data-color="#ff8c00" style="background-color: #ff8c00;" title="주황"></button>
-                                    <button type="button" class="color-btn" data-color="#ffd700" style="background-color: #ffd700;" title="노랑"></button>
-                                    <button type="button" class="color-btn" data-color="#32cd32" style="background-color: #32cd32;" title="초록"></button>
-                                    <button type="button" class="color-btn" data-color="#4169e1" style="background-color: #4169e1;" title="파랑"></button>
-                                    <button type="button" class="color-btn" data-color="#8a2be2" style="background-color: #8a2be2;" title="남색"></button>
-                                    <button type="button" class="color-btn" data-color="#ff69b4" style="background-color: #ff69b4;" title="보라"></button>
-                                    <button type="button" class="color-btn" data-color="#8b4513" style="background-color: #8b4513;" title="갈색"></button>
-                                    <button type="button" class="color-btn" data-color="#808080" style="background-color: #808080;" title="회색"></button>
-                                    <button type="button" class="color-btn" data-color="#000000" style="background-color: #000000;" title="검정"></button>
+                                <div class="custom-date-picker">
+                                    <input type="text" id="holidayDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayDate')">
                                 </div>
-                                <input type="hidden" id="holidayColor" value="#ff6b6b">
+                                <div id="holidayDatePicker" class="date-picker-popup hidden">
+                                    <div class="date-picker-header">
+                                        <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayDate', -1)">&lt;</button>
+                                        <span id="holidayDatePickerMonth"></span>
+                                        <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayDate', 1)">&gt;</button>
+                                    </div>
+                                    <div class="date-picker-weekdays">
+                                        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+                                    </div>
+                                    <div id="holidayDatePickerDays" class="date-picker-days"></div>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- 범위 날짜 입력 -->
+                        <div id="rangeDateInput" class="date-input" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="holidayStartDate">시작일</label>
+                                    <div class="custom-date-picker">
+                                        <input type="text" id="holidayStartDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayStartDate')">
+                                    </div>
+                                    <div id="holidayStartDatePicker" class="date-picker-popup hidden">
+                                        <div class="date-picker-header">
+                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayStartDate', -1)">&lt;</button>
+                                            <span id="holidayStartDatePickerMonth"></span>
+                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayStartDate', 1)">&gt;</button>
+                                        </div>
+                                        <div class="date-picker-weekdays">
+                                            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+                                        </div>
+                                        <div id="holidayStartDatePickerDays" class="date-picker-days"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="holidayEndDate">종료일</label>
+                                    <div class="custom-date-picker">
+                                        <input type="text" id="holidayEndDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayEndDate')">
+                                    </div>
+                                    <div id="holidayEndDatePicker" class="date-picker-popup hidden">
+                                        <div class="date-picker-header">
+                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayEndDate', -1)">&lt;</button>
+                                            <span id="holidayEndDatePickerMonth"></span>
+                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayEndDate', 1)">&gt;</button>
+                                        </div>
+                                        <div class="date-picker-weekdays">
+                                            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+                                        </div>
+                                        <div id="holidayEndDatePickerDays" class="date-picker-days"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="range-info">
+                                <span id="rangeDuration">기간: 1일</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>색상</label>
+                            <div class="color-picker">
+                                <button type="button" class="color-btn" data-color="#ff6b6b" style="background-color: #ff6b6b;" title="빨강"></button>
+                                <button type="button" class="color-btn" data-color="#4ecdc4" style="background-color: #4ecdc4;" title="청록"></button>
+                                <button type="button" class="color-btn" data-color="#45b7d1" style="background-color: #45b7d1;" title="하늘"></button>
+                                <button type="button" class="color-btn" data-color="#f9ca24" style="background-color: #f9ca24;" title="노랑"></button>
+                                <button type="button" class="color-btn" data-color="#a55eea" style="background-color: #a55eea;" title="보라"></button>
+                                <button type="button" class="color-btn" data-color="#fd79a8" style="background-color: #fd79a8;" title="분홍"></button>
+                                <button type="button" class="color-btn" data-color="#e84393" style="background-color: #e84393;" title="마젠타"></button>
+                                <button type="button" class="color-btn" data-color="#00b894" style="background-color: #00b894;" title="초록"></button>
+                                <button type="button" class="color-btn" data-color="#d63031" style="background-color: #d63031;" title="진빨강"></button>
+                                <button type="button" class="color-btn" data-color="#636e72" style="background-color: #636e72;" title="회색"></button>
+                            </div>
+                            <input type="hidden" id="holidayColor" value="#ff6b6b">
+                        </div>
+                        
                         <div class="form-group">
                             <label for="holidayName">기념일 이름</label>
                             <input type="text" id="holidayName" placeholder="기념일 이름" required>
                         </div>
+                        
                         <div class="form-buttons">
                             <button id="saveHolidayBtn">저장</button>
                             <button id="cancelHolidayBtn">취소</button>
