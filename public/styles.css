@@ -450,6 +450,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    height: 700px;
 }
 
 .editor-toolbar {
@@ -493,6 +494,12 @@ body {
     flex: 1;
     overflow: hidden;
     min-height: 0;
+}
+
+/* 메모 수정 모달의 에디터 컨테이너 높이 설정 */
+#editMemoForm .editor-container {
+    height: 600px;
+    flex: none;
 }
 
 .editor-pane {
@@ -1092,6 +1099,9 @@ body {
     padding: 1rem;
     border-radius: 8px;
     margin-top: 1rem;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
 }
 
 .add-form input,
@@ -1113,6 +1123,8 @@ body {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    margin-top: 1rem;
+    flex-shrink: 0;
 }
 
 .form-buttons button {
@@ -1225,10 +1237,23 @@ body {
     min-height: 0;
 }
 
+/* TODO 수정 폼의 제목 섹션 간격 조정 */
+.edit-form .form-group:first-child {
+    gap: 0.5rem;
+    margin-bottom: 0;
+    flex: none;
+}
+
 .form-group label {
     font-weight: 500;
     color: #333;
     font-size: 14px;
+}
+
+/* TODO 수정 폼의 제목 라벨 크기 조정 */
+.edit-form .form-group:first-child label {
+    font-size: 13px;
+    margin-bottom: 0;
 }
 
 .form-group input,
@@ -1243,6 +1268,13 @@ body {
 .form-group textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+/* TODO 수정 폼의 설명 입력 필드 높이 설정 */
+#editTodoDescription {
+    height: 600px !important;
+    resize: none !important;
+    min-height: 600px !important;
 }
 
 .modal-footer {
