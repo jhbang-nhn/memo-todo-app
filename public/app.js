@@ -805,13 +805,16 @@ async function saveTodo() {
     
     try {
         const dateStr = formatDateForDB(selectedDate);
+        // 줄바꿈을 <br> 태그로 변환하여 저장
+        const description = todoDescription.value.trim().replace(/\n/g, '<br>');
+        
         const { error } = await supabaseClient
             .from('todos')
             .insert({
                 user_id: currentUser.id,
                 date: dateStr,
                 title: title,
-                description: todoDescription.value.trim()
+                description: description
             });
         
         if (error) throw error;
@@ -921,7 +924,9 @@ async function editTodo(todoId) {
     
     // 모달에 현재 값 설정
     editTodoTitle.value = titleEl.textContent;
-    editTodoDescription.value = descriptionEl ? descriptionEl.textContent : '';
+    // <br> 태그를 줄바꿈으로 변환하여 textarea에 표시
+    const descriptionText = descriptionEl ? descriptionEl.innerHTML.replace(/<br\s*\/?>/gi, '\n') : '';
+    editTodoDescription.value = descriptionText;
     
     // 모달 표시
     modalTitle.textContent = 'TODO 수정';
@@ -977,11 +982,14 @@ async function saveEdit() {
                 return;
             }
             
+            // 줄바꿈을 <br> 태그로 변환하여 저장
+            const description = editTodoDescription.value.trim().replace(/\n/g, '<br>');
+            
             const { error } = await supabaseClient
                 .from('todos')
                 .update({
                     title: title,
-                    description: editTodoDescription.value.trim()
+                    description: description
                 })
                 .eq('id', editingItem.id);
             
@@ -1022,6 +1030,10 @@ function escapeHtml(text) {
 // 줄바꿈을 포함한 텍스트 포맷팅
 function formatTextWithLineBreaks(text) {
     if (!text) return '';
+    // 이미 <br> 태그가 있는 경우 그대로 사용, 없는 경우 \n을 <br>로 변환
+    if (text.includes('<br>')) {
+        return text; // 이미 HTML 형식이므로 그대로 반환
+    }
     return escapeHtml(text).replace(/\n/g, '<br>');
 }
 
