@@ -92,7 +92,6 @@
                                     <label for="holidayStartDate">시작일</label>
                                     <div class="custom-date-picker">
                                         <input type="text" id="holidayStartDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayStartDate')">
-                                    </div>
                                     <div id="holidayStartDatePicker" class="date-picker-popup hidden">
                                         <div class="date-picker-header">
                                             <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayStartDate', -1)">&lt;</button>
@@ -283,6 +282,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <script src="constants.js"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>

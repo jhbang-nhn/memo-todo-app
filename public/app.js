@@ -4,21 +4,7 @@ let selectedDate = new Date();
 let currentUser = null;
 let supabaseClient = null;
 
-// 한국 공휴일 목록 (2025년 기준)
-const HOLIDAYS_2025 = {
-    '2025-01-01': '신정',
-    '2025-02-09': '설날',
-    '2025-02-10': '설날',
-    '2025-02-11': '설날',
-    '2025-03-01': '삼일절',
-    '2025-05-05': '어린이날',
-    '2025-05-19': '부처님오신날',
-    '2025-06-06': '현충일',
-    '2025-08-15': '광복절',
-    '2025-10-03': '개천절',
-    '2025-10-09': '한글날',
-    '2025-12-25': '크리스마스'
-};
+// 공휴일 데이터는 constants.js에서 관리
 
 // DOM 요소들
 const loginScreen = document.getElementById('loginScreen');
@@ -570,6 +556,11 @@ function handleDateClick(e) {
 async function changeMonth(delta) {
     currentDate.setMonth(currentDate.getMonth() + delta);
     await renderCalendar();
+    
+    // 월 변경 시 커스텀 휴일 리스트 필터링 업데이트
+    if (currentUser) {
+        renderCustomHolidaysList();
+    }
 }
 
 // 날짜 비교
@@ -602,13 +593,17 @@ function formatDateForDB(date) {
 // 공휴일 확인
 function isHoliday(date) {
     const dateStr = formatDateForDB(date);
-    return HOLIDAYS_2025[dateStr] || false;
+    const year = date.getFullYear();
+    const yearHolidays = HolidayUtils.getHolidaysForYear(year);
+    return yearHolidays[dateStr] || false;
 }
 
 // 공휴일 이름 가져오기
 function getHolidayName(date) {
     const dateStr = formatDateForDB(date);
-    return HOLIDAYS_2025[dateStr] || '';
+    const year = date.getFullYear();
+    const yearHolidays = HolidayUtils.getHolidaysForYear(year);
+    return yearHolidays[dateStr] || '';
 }
 
 // 커스텀 휴일 확인
@@ -1188,7 +1183,7 @@ function updatePreview(textarea, preview) {
     }
 }
 
-// 커스텀 휴일 로드
+// 전체 커스텀 휴일 로드
 async function loadCustomHolidays() {
     try {
         const { data: holidays, error } = await supabaseClient
@@ -1210,14 +1205,37 @@ async function loadCustomHolidays() {
     }
 }
 
-// 커스텀 휴일 리스트 렌더링
+// 현재 달 + 다음 달에 해당하는 커스텀 휴일 필터링 (클라이언트에서 처리)
+function getFilteredCustomHolidays() {
+    // 현재 달과 다음 달 범위 계산
+    const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const nextMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 0);
+    
+    return customHolidays.filter(holiday => {
+        const startDate = new Date(holiday.start_date);
+        const endDate = holiday.end_date ? new Date(holiday.end_date) : startDate;
+        
+        // Range 휴일: 기간이 현재/다음 달과 겹치는지 확인
+        if (holiday.is_range && holiday.end_date) {
+            return (startDate <= nextMonthEnd && endDate >= currentMonthStart);
+        }
+        // 단일 휴일: 현재/다음 달에 포함되는지 확인
+        else {
+            return (startDate >= currentMonthStart && startDate <= nextMonthEnd);
+        }
+    });
+}
+
+// 커스텀 휴일 리스트 렌더링 (현재 달 + 다음 달만 표시)
 function renderCustomHolidaysList() {
-    if (customHolidays.length === 0) {
-        customHolidaysList.innerHTML = '<p style="color: #666; text-align: center; padding: 10px;">등록된 커스텀 휴일이 없습니다.</p>';
+    const filteredHolidays = getFilteredCustomHolidays();
+    
+    if (filteredHolidays.length === 0) {
+        customHolidaysList.innerHTML = '<p style="color: #666; text-align: center; padding: 10px;">이번 달과 다음 달에 등록된 커스텀 휴일이 없습니다.</p>';
         return;
     }
     
-    customHolidaysList.innerHTML = customHolidays.map(holiday => {
+    customHolidaysList.innerHTML = filteredHolidays.map(holiday => {
         let dateDisplay;
         
         if (holiday.is_range && holiday.end_date) {
