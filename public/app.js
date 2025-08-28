@@ -87,6 +87,13 @@ let rangeSelection = {
 // 커스텀 날짜 선택기 관련 변수
 let datePickerStates = {};
 
+// 휴일 달력 상태 관리
+let holidayCalendarState = {
+    currentMonth: new Date(),
+    selectedDates: [], // 범위 선택을 위한 배열
+    selectionMode: 'single' // 'single' 또는 'range'
+};
+
 // 날짜 선택기 표시
 function showDatePicker(inputId) {
     // 다른 모든 날짜 선택기 숨기기
@@ -187,6 +194,140 @@ function changePickerMonth(inputId, delta) {
     renderDatePicker(inputId);
 }
 
+// 휴일 달력 월 변경
+function changeHolidayCalendarMonth(delta) {
+    holidayCalendarState.currentMonth.setMonth(holidayCalendarState.currentMonth.getMonth() + delta);
+    renderHolidayCalendar();
+}
+
+// 휴일 달력 렌더링
+function renderHolidayCalendar() {
+    const monthEl = document.getElementById('holidayCalendarMonth');
+    const daysEl = document.getElementById('holidayCalendarDays');
+    
+    if (!monthEl || !daysEl) {
+        return;
+    }
+    
+    const year = holidayCalendarState.currentMonth.getFullYear();
+    const month = holidayCalendarState.currentMonth.getMonth();
+    
+    monthEl.textContent = `${year}년 ${month + 1}월`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    
+    // 일요일부터 시작하도록 조정
+    const firstDayOfWeek = firstDay.getDay();
+    startDate.setDate(startDate.getDate() - firstDayOfWeek);
+    
+    let daysHTML = '';
+    
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        
+        const isCurrentMonth = date.getMonth() === month;
+        const isToday = isSameDate(date, new Date());
+        const dayOfWeek = date.getDay();
+        const isSunday = dayOfWeek === 0; // 일요일
+        const isSaturday = dayOfWeek === 6; // 토요일
+        const dateStr = formatDateForDB(date);
+        
+        // 선택된 날짜 확인
+        let isSelected = false;
+        if (holidayCalendarState.selectionMode === 'single') {
+            isSelected = holidayCalendarState.selectedDates.includes(dateStr);
+        } else {
+            isSelected = holidayCalendarState.selectedDates.includes(dateStr);
+        }
+        
+        let classes = ['calendar-day'];
+        if (!isCurrentMonth) classes.push('other-month');
+        if (isToday) classes.push('today');
+        if (isSunday) classes.push('sunday'); // 일요일은 빨간색
+        if (isSaturday) classes.push('saturday'); // 토요일은 파란색
+        if (isSelected) classes.push('selected');
+        
+        daysHTML += `<div class="${classes.join(' ')}" data-date="${dateStr}" onclick="selectHolidayDate('${dateStr}')">${date.getDate()}</div>`;
+    }
+    
+    daysEl.innerHTML = daysHTML;
+}
+
+// 휴일 날짜 선택
+function selectHolidayDate(dateStr) {
+    if (holidayCalendarState.selectionMode === 'single') {
+        // 단일 날짜 선택
+        holidayCalendarState.selectedDates = [dateStr];
+        document.getElementById('holidayDate').value = dateStr;
+    } else {
+        // 범위 날짜 선택
+        if (holidayCalendarState.selectedDates.length === 0) {
+            // 첫 번째 날짜 선택
+            holidayCalendarState.selectedDates = [dateStr];
+            document.getElementById('holidayStartDate').value = dateStr;
+            document.getElementById('holidayEndDate').value = '';
+            document.getElementById('rangeDuration').textContent = '종료일을 선택해주세요';
+        } else if (holidayCalendarState.selectedDates.length === 1) {
+            // 두 번째 날짜 선택
+            const startDate = new Date(holidayCalendarState.selectedDates[0]);
+            const endDate = new Date(dateStr);
+            
+            if (startDate <= endDate) {
+                // 정상 순서
+                holidayCalendarState.selectedDates = [holidayCalendarState.selectedDates[0], dateStr];
+                document.getElementById('holidayEndDate').value = dateStr;
+                
+                // 범위 내 모든 날짜 추가
+                const allDates = [];
+                const currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    allDates.push(formatDateForDB(currentDate));
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                holidayCalendarState.selectedDates = allDates;
+                
+                // 기간 계산
+                const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('rangeDuration').textContent = `기간: ${duration}일`;
+            } else {
+                // 역순이면 새로 시작
+                holidayCalendarState.selectedDates = [dateStr];
+                document.getElementById('holidayStartDate').value = dateStr;
+                document.getElementById('holidayEndDate').value = '';
+                document.getElementById('rangeDuration').textContent = '종료일을 선택해주세요';
+            }
+        } else {
+            // 이미 범위가 선택되어 있으면 새로 시작
+            holidayCalendarState.selectedDates = [dateStr];
+            document.getElementById('holidayStartDate').value = dateStr;
+            document.getElementById('holidayEndDate').value = '';
+            document.getElementById('rangeDuration').textContent = '종료일을 선택해주세요';
+        }
+    }
+    
+    renderHolidayCalendar();
+}
+
+// 휴일 달력 초기화
+function initializeHolidayCalendar() {
+    // DOM 요소 존재 확인
+    const monthEl = document.getElementById('holidayCalendarMonth');
+    const daysEl = document.getElementById('holidayCalendarDays');
+    
+    if (!monthEl || !daysEl) {
+        setTimeout(initializeHolidayCalendar, 100);
+        return;
+    }
+    
+    holidayCalendarState.currentMonth = new Date();
+    holidayCalendarState.selectedDates = [];
+    holidayCalendarState.selectionMode = 'single';
+    renderHolidayCalendar();
+}
+
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', init);
 loginForm.addEventListener('submit', handleLogin);
@@ -232,7 +373,7 @@ document.addEventListener('click', (e) => {
         const type = e.target.dataset.type;
         document.querySelector('input[name="holidayType"]').value = type;
         
-        // 입력 필드 토글
+        // 입력 필드 토글 (달력 모드도 함께 변경됨)
         toggleHolidayTypeInput(type);
     }
 });
@@ -1269,20 +1410,24 @@ function renderCustomHolidaysList() {
 function showAddHolidayForm() {
     addHolidayForm.classList.remove('hidden');
     
-    // 기본값 설정
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('holidayDate').value = today;
-    document.getElementById('holidayStartDate').value = today;
-    document.getElementById('holidayEndDate').value = today;
-    
     // 휴일 타입 초기화
     document.querySelector('input[name="holidayType"]').value = 'single';
     document.querySelector('.type-btn[data-type="single"]').classList.add('active');
     document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
     toggleHolidayTypeInput('single');
     
+    // 입력 필드 초기화
+    document.getElementById('holidayDate').value = '';
+    document.getElementById('holidayStartDate').value = '';
+    document.getElementById('holidayEndDate').value = '';
+    document.getElementById('rangeDuration').textContent = '날짜를 선택해주세요';
+    
     resetColorSelection();
-    holidayDate.focus();
+    
+    // DOM이 준비된 후 달력 초기화 (비동기 실행)
+    setTimeout(() => {
+        initializeHolidayCalendar();
+    }, 50);
 }
 
 function hideAddHolidayForm() {
@@ -1529,6 +1674,9 @@ async function editCustomHoliday(holidayId) {
         }
     });
     
+    // 폼 표시 (먼저 폼을 표시해서 DOM이 준비되도록 함)
+    showAddHolidayForm();
+    
     // 휴일 타입에 따라 입력 필드 설정
     if (holiday.is_range && holiday.end_date) {
         // Range 휴일
@@ -1536,6 +1684,21 @@ async function editCustomHoliday(holidayId) {
         document.querySelector('.type-btn[data-type="range"]').classList.add('active');
         document.querySelector('.type-btn[data-type="single"]').classList.remove('active');
         toggleHolidayTypeInput('range');
+        
+        // 범위 날짜들을 달력에 설정
+        const startDate = new Date(holiday.start_date);
+        const endDate = new Date(holiday.end_date);
+        const selectedDates = [];
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            selectedDates.push(formatDateForDB(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        holidayCalendarState.selectedDates = selectedDates;
+        
+        // 달력을 해당 월로 이동
+        holidayCalendarState.currentMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        
         document.getElementById('holidayStartDate').value = holiday.start_date;
         document.getElementById('holidayEndDate').value = holiday.end_date;
         updateRangeDuration();
@@ -1545,11 +1708,19 @@ async function editCustomHoliday(holidayId) {
         document.querySelector('.type-btn[data-type="single"]').classList.add('active');
         document.querySelector('.type-btn[data-type="range"]').classList.remove('active');
         toggleHolidayTypeInput('single');
+        
+        // 단일 날짜를 달력에 설정
+        holidayCalendarState.selectedDates = [holiday.start_date];
+        
+        // 달력을 해당 월로 이동
+        const date = new Date(holiday.start_date);
+        holidayCalendarState.currentMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        
         document.getElementById('holidayDate').value = holiday.start_date;
     }
     
-    // 폼 표시
-    showAddHolidayForm();
+    // 달력 다시 렌더링
+    renderHolidayCalendar();
 }
 
 // Range 휴일 그라데이션 적용
@@ -1680,19 +1851,28 @@ function toggleHolidayTypeInput(type) {
         singleInput.style.display = 'none';
         rangeInput.style.display = 'block';
         
+        // 달력 선택 모드 변경
+        holidayCalendarState.selectionMode = 'range';
+        holidayCalendarState.selectedDates = [];
+        
         // Range 입력 필드 초기화
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('holidayStartDate').value = today;
-        document.getElementById('holidayEndDate').value = today;
-        updateRangeDuration();
+        document.getElementById('holidayStartDate').value = '';
+        document.getElementById('holidayEndDate').value = '';
+        document.getElementById('rangeDuration').textContent = '날짜를 선택해주세요';
     } else {
         singleInput.style.display = 'block';
         rangeInput.style.display = 'none';
         
+        // 달력 선택 모드 변경
+        holidayCalendarState.selectionMode = 'single';
+        holidayCalendarState.selectedDates = [];
+        
         // 단일 날짜 입력 필드 초기화
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('holidayDate').value = today;
+        document.getElementById('holidayDate').value = '';
     }
+    
+    // 달력 다시 렌더링
+    renderHolidayCalendar();
 }
 
 // Range 기간 계산 및 표시

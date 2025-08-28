@@ -64,66 +64,44 @@
                             <input type="hidden" name="holidayType" value="single">
                         </div>
                         
-                        <!-- 단일 날짜 입력 -->
-                        <div id="singleDateInput" class="date-input">
-                            <div class="form-group">
-                                <label for="holidayDate">날짜</label>
-                                <div class="custom-date-picker">
-                                    <input type="text" id="holidayDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayDate')">
+                        <!-- 고정 달력 -->
+                        <div class="form-group">
+                            <label>날짜 선택</label>
+                            <div class="fixed-calendar">
+                                <div class="calendar-header">
+                                    <button type="button" class="date-nav-btn" onclick="changeHolidayCalendarMonth(-1)">&lt;</button>
+                                    <span id="holidayCalendarMonth"></span>
+                                    <button type="button" class="date-nav-btn" onclick="changeHolidayCalendarMonth(1)">&gt;</button>
                                 </div>
-                                <div id="holidayDatePicker" class="date-picker-popup hidden">
-                                    <div class="date-picker-header">
-                                        <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayDate', -1)">&lt;</button>
-                                        <span id="holidayDatePickerMonth"></span>
-                                        <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayDate', 1)">&gt;</button>
-                                    </div>
-                                    <div class="date-picker-weekdays">
-                                        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-                                    </div>
-                                    <div id="holidayDatePickerDays" class="date-picker-days"></div>
+                                <div class="calendar-weekdays">
+                                    <div class="sunday">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="saturday">토</div>
                                 </div>
+                                <div id="holidayCalendarDays" class="calendar-days"></div>
                             </div>
                         </div>
                         
-                        <!-- 범위 날짜 입력 -->
-                        <div id="rangeDateInput" class="date-input" style="display: none;">
+                        <!-- 선택된 날짜 표시 (박스 밖으로 이동) -->
+                        <div id="singleDateInput" class="selected-date-display">
+                            <div class="form-group">
+                                <label for="holidayDate">선택된 날짜</label>
+                                <input type="text" id="holidayDate" placeholder="위의 달력에서 날짜를 선택해주세요" readonly>
+                            </div>
+                        </div>
+                        
+                        <!-- 범위 날짜 표시 (박스 밖으로 이동) -->
+                        <div id="rangeDateInput" class="selected-date-display" style="display: none;">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="holidayStartDate">시작일</label>
-                                    <div class="custom-date-picker">
-                                        <input type="text" id="holidayStartDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayStartDate')">
-                                    <div id="holidayStartDatePicker" class="date-picker-popup hidden">
-                                        <div class="date-picker-header">
-                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayStartDate', -1)">&lt;</button>
-                                            <span id="holidayStartDatePickerMonth"></span>
-                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayStartDate', 1)">&gt;</button>
-                                        </div>
-                                        <div class="date-picker-weekdays">
-                                            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-                                        </div>
-                                        <div id="holidayStartDatePickerDays" class="date-picker-days"></div>
-                                    </div>
+                                    <input type="text" id="holidayStartDate" placeholder="위의 달력에서 시작일을 선택해주세요" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label for="holidayEndDate">종료일</label>
-                                    <div class="custom-date-picker">
-                                        <input type="text" id="holidayEndDate" placeholder="YYYY-MM-DD" readonly required onclick="showDatePicker('holidayEndDate')">
-                                    </div>
-                                    <div id="holidayEndDatePicker" class="date-picker-popup hidden">
-                                        <div class="date-picker-header">
-                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayEndDate', -1)">&lt;</button>
-                                            <span id="holidayEndDatePickerMonth"></span>
-                                            <button type="button" class="date-nav-btn" onclick="changePickerMonth('holidayEndDate', 1)">&gt;</button>
-                                        </div>
-                                        <div class="date-picker-weekdays">
-                                            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
-                                        </div>
-                                        <div id="holidayEndDatePickerDays" class="date-picker-days"></div>
-                                    </div>
+                                    <input type="text" id="holidayEndDate" placeholder="위의 달력에서 종료일을 선택해주세요" readonly>
                                 </div>
                             </div>
                             <div class="range-info">
-                                <span id="rangeDuration">기간: 1일</span>
+                                <span id="rangeDuration">기간: 날짜를 선택해주세요</span>
                             </div>
                         </div>
                         
