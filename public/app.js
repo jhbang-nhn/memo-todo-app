@@ -1924,3 +1924,4 @@ function getHolidaysForDate(date) {
     
     return holidays;
 }
+
