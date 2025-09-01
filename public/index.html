@@ -80,16 +80,14 @@
                             </div>
                         </div>
                         
-                        <!-- 선택된 날짜 표시 (박스 밖으로 이동) -->
-                        <div id="singleDateInput" class="selected-date-display">
-                            <div class="form-group">
-                                <label for="holidayDate">선택된 날짜</label>
-                                <input type="text" id="holidayDate" placeholder="위의 달력에서 날짜를 선택해주세요" readonly>
-                            </div>
+                        <!-- 선택된 날짜 표시 -->
+                        <div id="singleDateInput" class="form-group">
+                            <label for="holidayDate">선택된 날짜</label>
+                            <input type="text" id="holidayDate" placeholder="위의 달력에서 날짜를 선택해주세요" readonly>
                         </div>
                         
-                        <!-- 범위 날짜 표시 (박스 밖으로 이동) -->
-                        <div id="rangeDateInput" class="selected-date-display" style="display: none;">
+                        <!-- 범위 날짜 표시 -->
+                        <div id="rangeDateInput" style="display: none;">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="holidayStartDate">시작일</label>
@@ -109,22 +107,19 @@
                             <label>색상</label>
                             <div class="color-picker">
                                 <button type="button" class="color-btn" data-color="#ff6b6b" style="background-color: #ff6b6b;" title="빨강"></button>
-                                <button type="button" class="color-btn" data-color="#4ecdc4" style="background-color: #4ecdc4;" title="청록"></button>
-                                <button type="button" class="color-btn" data-color="#45b7d1" style="background-color: #45b7d1;" title="하늘"></button>
-                                <button type="button" class="color-btn" data-color="#f9ca24" style="background-color: #f9ca24;" title="노랑"></button>
-                                <button type="button" class="color-btn" data-color="#a55eea" style="background-color: #a55eea;" title="보라"></button>
-                                <button type="button" class="color-btn" data-color="#fd79a8" style="background-color: #fd79a8;" title="분홍"></button>
-                                <button type="button" class="color-btn" data-color="#e84393" style="background-color: #e84393;" title="마젠타"></button>
+                                <button type="button" class="color-btn" data-color="#3498db" style="background-color: #3498db;" title="파랑"></button>
                                 <button type="button" class="color-btn" data-color="#00b894" style="background-color: #00b894;" title="초록"></button>
-                                <button type="button" class="color-btn" data-color="#d63031" style="background-color: #d63031;" title="진빨강"></button>
-                                <button type="button" class="color-btn" data-color="#636e72" style="background-color: #636e72;" title="회색"></button>
+                                <button type="button" class="color-btn" data-color="#9b59b6" style="background-color: #9b59b6;" title="보라"></button>
+                                <button type="button" class="color-btn" data-color="#e67e22" style="background-color: #e67e22;" title="주황"></button>
+                                <button type="button" class="color-btn" data-color="#8b4513" style="background-color: #8b4513;" title="갈색"></button>
+                                <button type="button" class="color-btn" data-color="#7f8c8d" style="background-color: #7f8c8d;" title="회색"></button>
                             </div>
                             <input type="hidden" id="holidayColor" value="#ff6b6b">
                         </div>
                         
                         <div class="form-group">
-                            <label for="holidayName">기념일 이름</label>
-                            <input type="text" id="holidayName" placeholder="기념일 이름" required>
+                            <label for="holidayName">휴일명</label>
+                            <input type="text" id="holidayName" placeholder="휴일명" required>
                         </div>
                         
                         <div class="form-buttons">

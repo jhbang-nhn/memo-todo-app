@@ -651,12 +651,19 @@ async function renderCalendar() {
             holidayTooltip = ` title="${getHolidayName(date)}"`;
         }
         
-        // 커스텀 휴일인 경우 인라인 스타일로 색상 적용 (단, Range 휴일은 제외)
+        // 커스텀 휴일인 경우 인라인 스타일로 색상 적용
         let styleAttr = '';
-        if (customHolidayInfo && !customHolidayInfo.is_range) {
+        if (customHolidayInfo) {
             // 다른 달의 커스텀 휴일은 투명도 적용
             const opacity = !isCurrentMonth ? '0.6' : '1';
-            styleAttr = ` style="color: ${customHolidayInfo.color} !important; opacity: ${opacity};"`;
+            
+            // 커스텀 휴일은 항상 커스텀 색상 사용
+            const textColor = customHolidayInfo.color;
+            
+            // Range 휴일(2일 이상)만 연노랑 배경색 적용
+            const backgroundColor = customHolidayInfo.is_range && customHolidayInfo.end_date ? '#fff9c4' : 'transparent';
+            
+            styleAttr = ` style="color: ${textColor} !important; background-color: ${backgroundColor}; opacity: ${opacity};"`;
         }
         
         calendarHTML += `<div class="${className}" data-date="${formatDateForDB(date)}"${holidayTooltip}${styleAttr}>${date.getDate()}</div>`;
