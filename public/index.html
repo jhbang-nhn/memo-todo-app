@@ -10,6 +10,9 @@
     <!-- 로그인 화면 -->
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
+            <div class="login-image">
+                <img src="images/purin_poo.png" alt="Purin" class="purin-image">
+            </div>
             <h2>for PURIN 로그인</h2>
             <form id="loginForm">
                 <input type="text" id="username" placeholder="사용자명" required>
@@ -22,7 +25,10 @@
     <!-- 메인 앱 화면 -->
     <div id="appScreen" class="app-screen hidden">
         <header class="header">
-            <h1>for PURIN</h1>
+            <div class="header-left">
+                <img id="logo" src="images/logo.png" alt="PURIN Logo" class="logo-image">
+                <h1>for PURIN</h1>
+            </div>
             <button id="logoutBtn" class="logout-btn">로그아웃</button>
         </header>
         

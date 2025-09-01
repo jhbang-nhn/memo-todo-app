@@ -22,7 +22,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: radial-gradient(ellipse at center, #8A4FFF 0%, #6423a0 50%, #4a1a75 100%);
 }
 
 .login-container {
@@ -32,6 +32,25 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
+}
+
+.login-image {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.purin-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.purin-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .login-container h2 {
@@ -55,7 +74,7 @@ body {
 
 .login-container button {
     padding: 12px;
-    background: #667eea;
+    background: #6423a0;
     color: white;
     border: none;
     border-radius: 5px;
@@ -65,7 +84,7 @@ body {
 }
 
 .login-container button:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 /* 메인 앱 화면 */
@@ -76,13 +95,37 @@ body {
 }
 
 .header {
-    background: #667eea;
+    background: #6423a0;
     color: white;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .logout-btn {
@@ -131,7 +174,7 @@ body {
 }
 
 .nav-btn {
-    background: #667eea;
+    background: #6423a0;
     color: white;
     border: none;
     width: 40px;
@@ -143,7 +186,7 @@ body {
 }
 
 .nav-btn:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 .calendar-grid {
@@ -187,7 +230,7 @@ body {
 }
 
 .calendar-day.selected {
-    background: #667eea;
+    background: #6423a0;
     color: white;
 }
 
@@ -197,7 +240,7 @@ body {
 }
 
 .calendar-day.selected.sunday-holiday {
-    background: #667eea;
+    background: #6423a0;
     color: white;
 }
 
@@ -261,7 +304,7 @@ body {
 
 /* 커스텀 휴일이 선택되었을 때도 색상 유지 */
 .calendar-day.selected[style*="color:"] {
-    background: #667eea !important;
+    background: #6423a0 !important;
     color: white !important;
 }
 
@@ -273,7 +316,7 @@ body {
 
 /* Range 휴일이 선택되었을 때 색상 조정 */
 .calendar-day.selected.range-holiday {
-    background: #667eea !important;
+    background: #6423a0 !important;
     color: white !important;
 }
 
@@ -326,7 +369,7 @@ body {
     bottom: 5px;
     width: 6px;
     height: 6px;
-    background: #667eea;
+    background: #6423a0;
     border-radius: 50%;
 }
 
@@ -480,14 +523,14 @@ body {
 }
 
 .type-btn:hover {
-    border-color: #667eea;
+    border-color: #6423a0;
     background: #f8f9fa;
 }
 
 .type-btn.active {
-    background: #667eea;
+    background: #6423a0;
     color: white;
-    border-color: #667eea;
+    border-color: #6423a0;
 }
 
 /* 고정 달력 스타일 */
@@ -514,7 +557,7 @@ body {
 }
 
 .date-nav-btn {
-    background: #667eea;
+    background: #6423a0;
     color: white;
     border: none;
     width: 32px;
@@ -529,7 +572,7 @@ body {
 }
 
 .date-nav-btn:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 .fixed-calendar .calendar-weekdays {
@@ -579,7 +622,7 @@ body {
 }
 
 .fixed-calendar .calendar-day.selected {
-    background: #667eea;
+    background: #6423a0;
     color: white;
 }
 
@@ -700,9 +743,9 @@ body {
 }
 
 .toolbar-btn.active {
-    background: #667eea;
+    background: #6423a0;
     color: white;
-    border-color: #667eea;
+    border-color: #6423a0;
 }
 
 .editor-container {
@@ -786,7 +829,7 @@ body {
 
 .markdown-preview h1 {
     font-size: 24px;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #6423a0;
     padding-bottom: 5px;
 }
 
@@ -855,7 +898,7 @@ body {
 }
 
 .markdown-preview a {
-    color: #667eea;
+    color: #6423a0;
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s;
@@ -863,7 +906,7 @@ body {
 
 .markdown-preview a:hover {
     text-decoration: none;
-    border-bottom-color: #667eea;
+    border-bottom-color: #6423a0;
 }
 
 .markdown-preview strong {
@@ -877,7 +920,7 @@ body {
 }
 
 .markdown-preview blockquote {
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #6423a0;
     margin: 15px 0;
     padding: 10px 15px;
     background: #f8f9fa;
@@ -999,7 +1042,7 @@ body {
 }
 
 .add-btn {
-    background: #667eea;
+    background: #6423a0;
     color: white;
     border: none;
     width: 30px;
@@ -1014,7 +1057,7 @@ body {
 }
 
 .add-btn:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 /* TODO 리스트 */
@@ -1031,7 +1074,7 @@ body {
     padding: 12px;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #6423a0;
     transition: all 0.3s;
 }
 
@@ -1102,7 +1145,7 @@ body {
 }
 
 .edit-btn {
-    color: #667eea;
+    color: #6423a0;
 }
 
 /* 메모 리스트 */
@@ -1127,7 +1170,7 @@ body {
 
 .memo-item:hover {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    border-left-color: #667eea;
+    border-left-color: #6423a0;
 }
 
 .memo-content {
@@ -1160,7 +1203,7 @@ body {
 
 .memo-content h1 {
     font-size: 18px;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #6423a0;
     padding-bottom: 3px;
 }
 
@@ -1230,7 +1273,7 @@ body {
 }
 
 .memo-content a {
-    color: #667eea;
+    color: #6423a0;
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s;
@@ -1238,7 +1281,7 @@ body {
 
 .memo-content a:hover {
     text-decoration: none;
-    border-bottom-color: #667eea;
+    border-bottom-color: #6423a0;
 }
 
 .memo-content strong {
@@ -1252,7 +1295,7 @@ body {
 }
 
 .memo-content blockquote {
-    border-left: 3px solid #667eea;
+    border-left: 3px solid #6423a0;
     margin: 10px 0;
     padding: 8px 12px;
     background: #f8f9fa;
@@ -1353,12 +1396,12 @@ body {
 }
 
 .form-buttons button:first-child {
-    background: #667eea;
+    background: #6423a0;
     color: white;
 }
 
 .form-buttons button:first-child:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 .form-buttons button:last-child {
@@ -1502,7 +1545,7 @@ body {
 }
 
 .save-btn {
-    background: #667eea;
+    background: #6423a0;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -1513,7 +1556,7 @@ body {
 }
 
 .save-btn:hover {
-    background: #5a6fd8;
+    background: #52317a;
 }
 
 .cancel-btn {
